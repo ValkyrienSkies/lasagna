@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "me.ewoudje.lasagna.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "MixinMain",
+    "render.MixinDebugRenderer",
+  ],
+  "mixins": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

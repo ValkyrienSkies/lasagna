@@ -1,0 +1,28 @@
+modLoader = "javafml"
+loaderVersion = "[40,)"
+#issueTrackerURL = ""
+license = "Insert License Here"
+
+[[mods]]
+modId = "lasagna"
+version = "${version}"
+displayName = "Lasagna lib"
+authors = "ewoudje"
+description = '''
+This is a library mod for lasagna.
+'''
+#logoFile = ""
+
+[[dependencies.lasagna]]
+modId = "forge"
+mandatory = true
+versionRange = "[40,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.lasagna]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.18.2,)"
+ordering = "NONE"
+side = "BOTH"

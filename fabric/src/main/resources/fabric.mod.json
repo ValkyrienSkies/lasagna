@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "lasagna",
+  "version": "${version}",
+  "name": "Lasagna Library",
+  "description": "Library for making lasagna",
+  "authors": [
+    "ewoudje"
+  ],
+  "license": "GNU AGPLv3",
+  "icon": "assets/pb/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "me.ewoudje.lasagna.fabric.LasagnaModFabric"
+    ],
+    "client": [
+        "me.ewoudje.lasagna.fabric.LasagnaModFabric${'$'}Client"
+    ]
+  },
+  "mixins": [
+    "lasagna.mixins.json",
+    "lasagna-common.mixins.json"
+  ],
+  "depends": {
+    "fabric": "*",
+    "minecraft": ">=1.18.2"
+  }
+}
