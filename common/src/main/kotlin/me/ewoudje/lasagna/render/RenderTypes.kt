@@ -5,36 +5,10 @@ import com.mojang.blaze3d.vertex.VertexFormat
 import net.minecraft.client.renderer.RenderStateShard
 import net.minecraft.client.renderer.RenderType
 
-
+// Based of Create Mod by simibubi
 object RenderTypes : RenderStateShard("lasagna:render_types",
     {}, {}
 ) {
-    /*
-    val name1: String
-        get() {
-            return name1
-        }
-    val runnable1: Runnable
-        get() {
-            return runnable1
-        }
-    val runnable2: Runnable
-        get() {
-            return runnable2
-        }
-
-
-//    val name1: String = "RenderTypes"
-//    private val setupState: Runnable? = null
-//    private val clearState: Runnable? = null
-//
-//    override fun setupRenderState() {
-//        setupState?.run()
-//    }
-//
-//    override fun clearRenderState() {
-//        clearState?.run()
-//    }*/
 
     val solidOutline: RenderType = RenderType.create(
         "outline_solid", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS,

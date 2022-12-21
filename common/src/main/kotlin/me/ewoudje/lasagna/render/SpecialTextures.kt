@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import me.ewoudje.lasagna.LasagnaMod.resource
 
 
+// Based of Create Mod by simibubi
 enum class SpecialTextures(filename: String) {
     BLANK("blank.png"),
     CHECKERED("checkerboard.png"),
