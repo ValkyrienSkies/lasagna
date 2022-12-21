@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.VertexFormat
 import net.minecraft.client.renderer.RenderStateShard
 import net.minecraft.client.renderer.RenderType
 
-// Based of Create Mod by simibubi
+
 object RenderTypes : RenderStateShard("lasagna:render_types",
     {}, {}
 ) {
