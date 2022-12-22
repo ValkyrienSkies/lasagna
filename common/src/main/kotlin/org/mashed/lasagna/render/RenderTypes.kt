@@ -5,10 +5,16 @@ import com.mojang.blaze3d.vertex.VertexFormat
 import net.minecraft.client.renderer.RenderStateShard
 import net.minecraft.client.renderer.RenderType
 
-
+// Based of Create Mod by simibubi
 object RenderTypes : RenderStateShard("lasagna:render_types",
     {}, {}
 ) {
+    val solid = RenderType.solid()
+    val cutout = RenderType.cutout()
+    val cutoutMipped = RenderType.cutoutMipped()
+    val translucent = RenderType.translucent()
+    val translucentNoCrumbling = RenderType.translucentNoCrumbling()
+    val lines = RenderType.lines()
 
     val solidOutline: RenderType = RenderType.create(
         "outline_solid", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS,
@@ -126,10 +132,6 @@ object RenderTypes : RenderStateShard("lasagna:render_types",
             .setOverlayState(OVERLAY)
             .createCompositeState(true)
     )
-
-    private fun createLayerName(name: String): String {
-        return PotatoBatteryMod.MOD_ID + ":" + name
-    }
 */
 
 }

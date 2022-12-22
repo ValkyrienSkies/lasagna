@@ -4,6 +4,7 @@ import net.minecraft.client.renderer.debug.DebugRenderer
 
 object DebugHelper {
     internal val debugRenderers = mutableListOf<DebugRenderer.SimpleDebugRenderer>()
+
     fun useSwing() {
         System.setProperty("java.awt.headless", "false")
     }
