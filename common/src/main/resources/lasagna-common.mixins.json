@@ -4,9 +4,13 @@
   "compatibilityLevel": "JAVA_17",
   "client": [
     "MixinMain",
-    "render.MixinDebugRenderer"
+    "render.MixinDebugRenderer",
+    "scaleblocks.MixinRenderChunk",
+    "scaleblocks.MixinRenderChunkRegion",
+    "scaleblocks.accessor.AccessorRenderChunk"
   ],
   "mixins": [
+    "scaleblocks.MixinLevelChunkSection"
   ],
   "injectors": {
     "defaultRequire": 1

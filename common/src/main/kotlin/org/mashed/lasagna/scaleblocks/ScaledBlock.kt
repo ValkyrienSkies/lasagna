@@ -1,3 +1,6 @@
 package org.mashed.lasagna.scaleblocks
 
-interface ScaledBlock
+interface ScaledBlock {
+    fun supportsResolution(resolution: Int): Boolean
+
+}

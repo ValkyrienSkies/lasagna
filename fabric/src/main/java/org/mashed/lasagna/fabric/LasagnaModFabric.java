@@ -1,6 +1,7 @@
 package org.mashed.lasagna.fabric;
 
 import com.mojang.brigadier.CommandDispatcher;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import org.mashed.lasagna.LasagnaMod;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.api.ClientModInitializer;
@@ -14,6 +15,9 @@ public class LasagnaModFabric implements ModInitializer {
     @Override
     public void onInitialize() {
         LasagnaMod.init();
+        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
+            LasagnaMod.registerServerCommands(dispatcher);
+        });
     }
 
     @Environment(EnvType.CLIENT)
