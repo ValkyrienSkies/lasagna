@@ -22,7 +22,7 @@ architectury {
 }
 
 loom {
-    accessWidenerPath = project(":common").loom.accessWidenerPath
+    accessWidenerPath = project(":minecraft:common").loom.accessWidenerPath
 
     forge {
         convertAccessWideners = true
@@ -56,8 +56,8 @@ configurations {
 dependencies {
     forge "net.minecraftforge:forge:${rootProject.forge_version}"
 
-    common(project(path: ":common", configuration: "namedElements")) { transitive false }
-    shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
+    common(project(path: ":minecraft:common", configuration: "namedElements")) { transitive false }
+    shadowCommon(project(path: ":minecraft:common", configuration: "transformProductionForge")) { transitive = false }
 }
 
 processResources {
@@ -92,7 +92,7 @@ jar {
 }
 
 sourcesJar {
-    def commonSources = project(":common").sourcesJar
+    def commonSources = project(":minecraft:common").sourcesJar
     dependsOn commonSources
     from commonSources.archiveFile.map { zipTree(it) }
 }

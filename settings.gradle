@@ -7,8 +7,9 @@ pluginManagement {
     }
 }
 
-include("common")
-include("fabric")
-include("forge")
+include(":minecraft")
+include(":minecraft:common")
+include(":minecraft:fabric")
+include(":minecraft:forge")
 
 rootProject.name = "lasagna-lib"

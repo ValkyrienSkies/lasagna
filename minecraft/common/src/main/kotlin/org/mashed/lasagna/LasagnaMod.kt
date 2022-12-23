@@ -33,11 +33,11 @@ object LasagnaMod {
     @JvmStatic
     fun registerClientCommands(dispatcher: CommandDispatcher<ClientSuggestionProvider>) {
         dispatcher.register(
-            literal<ClientSuggestionProvider>("lasagna").then(
+            literal<ClientSuggestionProvider>("clasagna").then(
                 literal<ClientSuggestionProvider>("version").executes {
                     Minecraft.gui.chat.addMessage(TextComponent("Lasagna version $VERSION"))
                     1
-                }).then(literal<ClientSuggestionProvider>("cdebug").then(argument<ClientSuggestionProvider, Int>("pos", IntegerArgumentType.integer()).executes { ctx ->
+                }).then(literal<ClientSuggestionProvider>("debug").then(argument<ClientSuggestionProvider, Int>("pos", IntegerArgumentType.integer()).executes { ctx ->
                     try {
                         (Minecraft.level?.getChunk(BlockPos.ZERO)?.getSection(0) as ScaledSectionContainer?)?.let {
                             if (it.scaledSection == null)
@@ -63,8 +63,14 @@ object LasagnaMod {
             literal<CommandSourceStack>("lasagna").then(
                 literal<CommandSourceStack>("debug").executes {
                     try {
+                        (it.source.level.getChunk(0, 0).getSection(0) as ScaledSectionContainer?)?.let {
+                            if (it.scaledSection == null)
+                                it.scaledSection = ScaledSection(ScaleBlocksView(3, 0.05))
+                                    .apply { setBlockState(0, 12, 0, Blocks.GOLD_BLOCK.defaultBlockState()) }
+                        }
                         it.source.sendSuccess(TextComponent("Lasagna debug"), false)
                     } catch (e: Exception) {
+                        e.printStackTrace()
                         it.source.sendFailure(TextComponent("Lasagna debug failed: ${e.message}"))
                     }
                     1

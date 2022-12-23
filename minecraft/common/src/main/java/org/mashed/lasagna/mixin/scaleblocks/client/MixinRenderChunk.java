@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.mashed.lasagna.scaleblocks.ScaledSectionContainer;
 import org.mashed.lasagna.scaleblocks.ScaledSectionsProvider;
+import org.mashed.lasagna.scaleblocks.render.ScaledSectionRenderer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,7 +31,7 @@ public class MixinRenderChunk {
     private void compile(float x, float y, float z, ChunkRenderDispatcher.CompiledChunk compiledChunk, ChunkBufferBuilderPack buffers, CallbackInfoReturnable<Set<BlockEntity>> cir, int i, BlockPos blockPos, BlockPos blockPos2, VisGraph visGraph, Set set, RenderChunkRegion region, PoseStack poseStack, Random random) {
         var section = ((ScaledSectionsProvider) region).getScaledSectionAt(this.field_20839.getOrigin());
         if (section != null)
-            section.compile(x, y, z, compiledChunk, buffers);
+            ScaledSectionRenderer.compile(section, x, y, z, compiledChunk, buffers);
     }
 
 }
