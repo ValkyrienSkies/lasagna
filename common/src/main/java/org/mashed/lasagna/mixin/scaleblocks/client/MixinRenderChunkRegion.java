@@ -1,11 +1,11 @@
-package org.mashed.lasagna.mixin.scaleblocks;
+package org.mashed.lasagna.mixin.scaleblocks.client;
 
 import net.minecraft.client.renderer.chunk.RenderChunkRegion;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
-import org.mashed.lasagna.mixin.scaleblocks.accessor.AccessorRenderChunk;
+import org.mashed.lasagna.mixin.scaleblocks.client.accessor.AccessorRenderChunk;
 import org.mashed.lasagna.scaleblocks.ScaledSection;
 import org.mashed.lasagna.scaleblocks.ScaledSectionContainer;
 import org.mashed.lasagna.scaleblocks.ScaledSectionsProvider;

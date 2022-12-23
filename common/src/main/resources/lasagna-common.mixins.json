@@ -5,11 +5,12 @@
   "client": [
     "MixinMain",
     "render.MixinDebugRenderer",
-    "scaleblocks.MixinRenderChunk",
-    "scaleblocks.MixinRenderChunkRegion",
-    "scaleblocks.accessor.AccessorRenderChunk"
+    "scaleblocks.client.MixinRenderChunk",
+    "scaleblocks.client.MixinRenderChunkRegion",
+    "scaleblocks.client.accessor.AccessorRenderChunk"
   ],
   "mixins": [
+    "scaleblocks.MixinChunkSerializer",
     "scaleblocks.MixinLevelChunkSection"
   ],
   "injectors": {

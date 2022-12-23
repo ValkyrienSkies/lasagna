@@ -6,11 +6,14 @@ import net.fabricmc.api.Environment
 import net.minecraft.client.renderer.ChunkBufferBuilderPack
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher
 import net.minecraft.client.renderer.texture.OverlayTexture
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.NbtOps
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.chunk.PalettedContainer
 import org.mashed.lasagna.Minecraft
+import java.lang.RuntimeException
 
 class ScaledSection(val view: ScaleBlocksView) {
     private val states: Array<PalettedContainer<BlockState>> = Array(view.resolution * view.resolution * view.resolution) {
@@ -48,7 +51,9 @@ class ScaledSection(val view: ScaleBlocksView) {
         val renderer = Minecraft.blockRenderer
         val posestack = PoseStack()
         val buffer = buffers.builder(RenderTypes.solid)
-        val scale = 1.0f / view.resolution
+        val scale = (1.0f - (view.padding.toFloat() * 2)) / view.resolution
+        posestack.translate(view.padding, view.padding, view.padding)
+        posestack.scale(scale, scale, scale)
 
         repeat(view.resolution) { xIndex ->
             repeat(view.resolution) { yIndex ->
@@ -56,7 +61,6 @@ class ScaledSection(val view: ScaleBlocksView) {
                     val cont = states[xIndex * view.resolution * view.resolution + yIndex * view.resolution + zIndex]
 
                     posestack.pushPose()
-                    posestack.scale(scale, scale, scale)
                     posestack.translate(xIndex * 16.0, yIndex * 16.0, zIndex * 16.0)
 
                     repeat(16) { x ->
@@ -65,7 +69,14 @@ class ScaledSection(val view: ScaleBlocksView) {
                                 val state = cont.get(x, y, z)
                                 if (state != Blocks.AIR.defaultBlockState()) {
                                     posestack.pushPose()
-                                    posestack.translate(x.toDouble(), y.toDouble(), z.toDouble())
+
+                                    val paddingMul = (view.padding / scale) * 2
+                                    posestack.translate(
+                                        x.toDouble() + (paddingMul * (x / view.resolution)),
+                                        y.toDouble() + (paddingMul * (y / view.resolution)),
+                                        z.toDouble() + (paddingMul * (z / view.resolution))
+                                    )
+
                                     val model = renderer.getBlockModel(state)
                                     // renderer.renderBatched(state, pos, ) TODO optimize to use batched rendering
                                     renderer.modelRenderer.renderModel(
@@ -89,5 +100,22 @@ class ScaledSection(val view: ScaleBlocksView) {
                 }
             }
         }
+    }
+
+    fun writeNbt(section: CompoundTag) {
+        ScaleBlocksView.CODEC.encode(view, NbtOps.INSTANCE, section.getCompound("scaled_view"))
+        // TODO write states
+    }
+
+    companion object {
+        @JvmStatic
+        fun readNbt(section: CompoundTag): ScaledSection? =
+            if (section.contains("scaled_view")) {
+                ScaledSection(ScaleBlocksView.CODEC.decode(NbtOps.INSTANCE, section.getCompound("scaled_view"))
+                    .getOrThrow(false) { throw RuntimeException(it) }.first).apply {
+                        // TODO read states
+                }
+            } else null
+
     }
 }

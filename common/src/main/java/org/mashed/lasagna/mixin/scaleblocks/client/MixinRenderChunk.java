@@ -1,4 +1,4 @@
-package org.mashed.lasagna.mixin.scaleblocks;
+package org.mashed.lasagna.mixin.scaleblocks.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.ChunkBufferBuilderPack;
@@ -27,7 +27,7 @@ public class MixinRenderChunk {
     @Shadow @Final ChunkRenderDispatcher.RenderChunk field_20839;
 
     @Inject(method = "compile", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getBlockRenderer()Lnet/minecraft/client/renderer/block/BlockRenderDispatcher;"), locals = LocalCapture.CAPTURE_FAILHARD)
-    void compile(float x, float y, float z, ChunkRenderDispatcher.CompiledChunk compiledChunk, ChunkBufferBuilderPack buffers, CallbackInfoReturnable<Set<BlockEntity>> cir, int i, BlockPos blockPos, BlockPos blockPos2, VisGraph visGraph, Set set, RenderChunkRegion region, PoseStack poseStack, Random random) {
+    private void compile(float x, float y, float z, ChunkRenderDispatcher.CompiledChunk compiledChunk, ChunkBufferBuilderPack buffers, CallbackInfoReturnable<Set<BlockEntity>> cir, int i, BlockPos blockPos, BlockPos blockPos2, VisGraph visGraph, Set set, RenderChunkRegion region, PoseStack poseStack, Random random) {
         var section = ((ScaledSectionsProvider) region).getScaledSectionAt(this.field_20839.getOrigin());
         if (section != null)
             section.compile(x, y, z, compiledChunk, buffers);

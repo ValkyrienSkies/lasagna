@@ -1,4 +1,4 @@
-package org.mashed.lasagna.mixin.scaleblocks.accessor;
+package org.mashed.lasagna.mixin.scaleblocks.client.accessor;
 
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
