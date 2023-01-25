@@ -1,6 +1,11 @@
 package org.mashed.lasagna.forge.services;
 
 import kotlin.jvm.functions.Function0;
+import net.minecraft.client.gui.screens.worldselection.WorldPreset;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraftforge.common.world.ForgeWorldPreset;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.mashed.lasagna.services.LasagnaPlatformHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -24,5 +29,11 @@ public class LasagnaPlatformHelperForge implements LasagnaPlatformHelper {
                 return new TranslatableComponent("itemGroup." + String.format("%s.%s", id.getNamespace(), id.getPath()));
             }
         };
+    }
+
+    @NotNull
+    @Override
+    public ResourceKey<Registry<WorldPreset>> worldPresetsRegistry() {
+        return (ResourceKey) ForgeRegistries.Keys.WORLD_TYPES;
     }
 }

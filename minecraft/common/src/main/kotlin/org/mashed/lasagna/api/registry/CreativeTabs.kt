@@ -8,9 +8,6 @@ import java.util.ServiceLoader
 
 object CreativeTabs {
     fun create(id: ResourceLocation, stack: () -> ItemStack): CreativeModeTab {
-        return ServiceLoader.load(LasagnaPlatformHelper::class.java)
-            .findFirst()
-            .get()
-            .createCreativeTab(id, stack)
+        return LasagnaPlatformHelper.createCreativeTab(id, stack)
     }
 }

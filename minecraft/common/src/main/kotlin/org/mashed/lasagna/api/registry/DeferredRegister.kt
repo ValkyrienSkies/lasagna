@@ -11,14 +11,8 @@ interface DeferredRegister<T> : Iterable<RegistrySupplier<T>> {
     fun applyAll()
 
     companion object {
-        private val backend: DeferredRegisterBackend = load()
 
         fun <T> create(id: String, registry: ResourceKey<Registry<T>>): DeferredRegister<T> =
-            backend.makeDeferredRegister(id, registry)
-
-        private fun load(): DeferredRegisterBackend =
-            ServiceLoader.load(DeferredRegisterBackend::class.java)
-                .findFirst()
-                .orElseThrow { NullPointerException("Failed to load service for DeferredRegisterBackend") }
+            DeferredRegisterBackend.makeDeferredRegister(id, registry)
     }
 }
