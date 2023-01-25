@@ -73,6 +73,8 @@ components.java {
 publishing {
     publications {
         mavenFabric(MavenPublication) {
+            groupId = "org.mashed"
+            version = project.version
             artifactId = rootProject.archives_base_name + "-" + project.name
             from components.java
         }

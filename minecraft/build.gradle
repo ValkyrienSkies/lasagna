@@ -9,14 +9,15 @@ plugins {
     id "com.modrinth.minotaur" version "2.4.3" apply false
 }
 
+var mod_version = lasagna_version
 // Determine the version
 if (project.hasProperty("CustomReleaseVersion")) {
     // Remove release/ from the version if present
-    version = project.property("CustomReleaseVersion").replaceFirst("^release/", "")
+    mod_version = project.property("CustomReleaseVersion").replaceFirst("^release/", "")
 } else {
     String gitRevision = "git rev-parse HEAD".execute().text.trim()
 
-    version = potato_battery_version + '+' + gitRevision.substring(0, 10)
+    mod_version = lasagna_version + '+' + gitRevision.substring(0, 10)
 }
 
 architectury {
@@ -59,8 +60,8 @@ allprojects {
     apply plugin: "architectury-plugin"
     apply plugin: "maven-publish"
 
-    archivesBaseName = rootProject.archives_base_name
-    version = rootProject.version
+    archivesBaseName = project.archives_base_name
+    version = mod_version
 
     repositories {
         mavenLocal()

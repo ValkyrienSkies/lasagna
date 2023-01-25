@@ -106,6 +106,8 @@ components.java {
 publishing {
     publications {
         mavenForge(MavenPublication) {
+            groupId = "org.mashed"
+            version = project.version
             artifactId = rootProject.archives_base_name + "-" + project.name
             from components.java
         }
