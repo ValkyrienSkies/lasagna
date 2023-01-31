@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.TextComponent
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.block.Blocks
+import org.mashed.lasagna.api.events.RegistryEvents
 import org.mashed.lasagna.scaleblocks.ScaleBlocksView
 import org.mashed.lasagna.scaleblocks.ScaledSection
 import org.mashed.lasagna.scaleblocks.ScaledSectionContainer
@@ -55,6 +56,8 @@ object LasagnaMod {
                     1
                 }))
         )
+
+        RegistryEvents.onClientCommandRegister.invoke(dispatcher)
     }
 
     @JvmStatic
@@ -76,6 +79,8 @@ object LasagnaMod {
                     1
                 })
         )
+
+        RegistryEvents.onServerCommandRegister.invoke(dispatcher)
     }
 
     val String.resource: ResourceLocation get() = ResourceLocation(MOD_ID, this)
