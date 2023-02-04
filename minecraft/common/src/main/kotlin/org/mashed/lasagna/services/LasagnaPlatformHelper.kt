@@ -1,6 +1,9 @@
 package org.mashed.lasagna.services
 
+import net.fabricmc.api.EnvType
+import net.fabricmc.api.Environment
 import net.minecraft.client.gui.screens.worldselection.WorldPreset
+import net.minecraft.client.renderer.DimensionSpecialEffects
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
@@ -12,7 +15,11 @@ interface LasagnaPlatformHelper {
 
     fun createCreativeTab(id: ResourceLocation, stack: () -> ItemStack): CreativeModeTab
 
+    @Environment(EnvType.CLIENT)
     fun worldPresetsRegistry(): ResourceKey<Registry<WorldPreset>>
+
+    @Environment(EnvType.CLIENT)
+    fun dimensionEffectsRegistry(): ResourceKey<Registry<DimensionSpecialEffects>>
 
 
     companion object : LasagnaPlatformHelper by (

@@ -3,6 +3,7 @@
   "package": "org.mashed.lasagna.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "DimensionSpecialEffectsAccessor",
     "MixinMain",
     "render.MixinDebugRenderer",
     "scaleblocks.client.MixinRenderChunk",

@@ -1,8 +1,9 @@
 {
   "required": true,
-  "package": "me.mashed.lasagna.forge.mixin",
+  "package": "org.mashed.lasagna.forge.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "MixinDimensionSpecialEffects"
   ],
   "mixins": [
   ],
