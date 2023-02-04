@@ -1,6 +1,7 @@
 package org.mashed.lasagna.forge;
 
 import kotlin.jvm.functions.Function0;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraftforge.registries.RegistryObject;
@@ -23,6 +24,12 @@ public class DeferredRegisterImpl<T> implements DeferredRegister<T> {
         RegistryObject<I> result = forge.register(name, builder::invoke);
 
         return new RegistrySupplier<I>() {
+            @NotNull
+            @Override
+            public Holder<I> holder() {
+                return result.getHolder().orElseThrow(() -> new IllegalStateException("Registry object not yet initialized"));
+            }
+
             @NotNull
             @Override
             public String getName() {
@@ -57,6 +64,12 @@ public class DeferredRegisterImpl<T> implements DeferredRegister<T> {
                 RegistryObject<T> result = iterator.next();
 
                 return new RegistrySupplier<T>() {
+                    @NotNull
+                    @Override
+                    public Holder<T> holder() {
+                        return result.getHolder().orElseThrow(() -> new IllegalStateException("Registry object not yet initialized"));
+                    }
+
                     @NotNull
                     @Override
                     public String getName() {

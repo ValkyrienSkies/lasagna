@@ -1,6 +1,7 @@
 package org.mashed.lasagna.fabric;
 
 import kotlin.jvm.functions.Function0;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -27,9 +28,16 @@ public class DeferredRegisterImpl<T> implements DeferredRegister<T> {
     @NotNull
     @Override
     public <I extends T> RegistrySupplier<I> register(@NotNull String name, @NotNull Function0<? extends I> builder) {
-        I result = Registry.register(registry, new ResourceLocation(modId, name), builder.invoke());
+        ResourceKey<T> key = ResourceKey.create(registry.key(), new ResourceLocation(modId, name));
+        I result = Registry.register(registry, key, builder.invoke());
 
         RegistrySupplier<I> r = new RegistrySupplier<I>() {
+
+            @NotNull
+            @Override
+            public Holder<I> holder() {
+                return (Holder<I>) registry.getOrCreateHolder(key);
+            }
 
             @NotNull
             @Override
