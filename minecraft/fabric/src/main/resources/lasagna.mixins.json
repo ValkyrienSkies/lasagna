@@ -6,6 +6,7 @@
     "WorldPresetAccessor"
   ],
   "mixins": [
+    "MixinModResourcePackUtil"
   ],
   "injectors": {
     "defaultRequire": 1
