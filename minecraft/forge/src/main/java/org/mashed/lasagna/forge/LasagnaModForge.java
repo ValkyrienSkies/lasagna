@@ -1,6 +1,7 @@
 package org.mashed.lasagna.forge;
 
 
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -17,16 +18,23 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import org.mashed.lasagna.LasagnaMod;
 import org.mashed.lasagna.mixin.DimensionSpecialEffectsAccessor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 @Mod(LasagnaMod.MOD_ID)
 public class LasagnaModForge {
+    private static final List<Pair<Class<?>, ResourceKey<?>>> registries = new ArrayList<>();
     boolean happendClientSetup = false;
     static IEventBus MOD_BUS;
 
     @OnlyIn(Dist.CLIENT)
     public static final ResourceKey<Registry<DimensionSpecialEffects>> DIMENSION_EFFECTS_REGISTRY = ResourceKey.createRegistryKey(
             new ResourceLocation(LasagnaMod.MOD_ID, "dimension_effects"));
+
+    public static <T> void makeRegistry(Class<T> clazz, ResourceKey<Registry<T>> registry) {
+        registries.add(Pair.of(clazz, registry));
+    }
 
     public LasagnaModForge() {
         // Submit our event bus to let architectury register our content on the right time
@@ -56,5 +64,11 @@ public class LasagnaModForge {
                                     DimensionSpecialEffectsAccessor.getEFFECTS()
                                             .put(key, (DimensionSpecialEffects) owner.getValue(key))))
                     .setName(DIMENSION_EFFECTS_REGISTRY.location()));
+
+        registries.forEach((pair) -> {
+            event.create(new RegistryBuilder()
+                    .setName(pair.getSecond().location())
+                    .setType(pair.getFirst()));
+        });
     }
 }

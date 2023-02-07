@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.minecraft.client.gui.screens.worldselection.WorldPreset;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
+import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -22,20 +23,28 @@ import org.mashed.lasagna.fabric.mixin.WorldPresetAccessor;
 import org.mashed.lasagna.fabric.services.LasagnaPlatformHelperFabric;
 import org.mashed.lasagna.mixin.DimensionSpecialEffectsAccessor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LasagnaModFabric implements ModInitializer {
     private final AtomicBoolean hasInitialized = new AtomicBoolean(false);
+    private static final List<Registry> registries = new ArrayList<>();
     public static final ResourceKey<Registry<WorldPreset>> WORLD_PRESETS_REGISTRY = ResourceKey.createRegistryKey(
             new ResourceLocation(LasagnaMod.MOD_ID, "world_presets"));
     public static final ResourceKey<Registry<DimensionSpecialEffects>> DIMENSION_EFFECTS_REGISTRY = ResourceKey.createRegistryKey(
             new ResourceLocation(LasagnaMod.MOD_ID, "dimension_effects"));
 
     public static final Registry<WorldPreset> WORLD_PRESETS =
-            FabricRegistryBuilder.createSimple(WorldPreset.class, WORLD_PRESETS_REGISTRY.location()).buildAndRegister();
+            track(FabricRegistryBuilder.createSimple(WorldPreset.class, WORLD_PRESETS_REGISTRY.location()).buildAndRegister());
 
     public static final Registry<DimensionSpecialEffects> DIMENSION_EFFECTS =
-            FabricRegistryBuilder.createSimple(DimensionSpecialEffects.class, DIMENSION_EFFECTS_REGISTRY.location()).buildAndRegister();
+            track(FabricRegistryBuilder.createSimple(DimensionSpecialEffects.class, DIMENSION_EFFECTS_REGISTRY.location()).buildAndRegister());
+
+    public static <T> Registry<T> track(Registry<T> registry) {
+        registries.add(registry);
+        return registry;
+    }
 
 
     @Override
@@ -60,8 +69,7 @@ public class LasagnaModFabric implements ModInitializer {
             LasagnaMod.registerClientCommands((CommandDispatcher<ClientSuggestionProvider>) (Object) ClientCommandManager.DISPATCHER);
 
             RegistryEvents.INSTANCE.getOnRegistriesComplete().register(_u -> {
-                WORLD_PRESETS.freeze();
-                DIMENSION_EFFECTS.freeze();
+                registries.forEach(Registry::freeze);
 
                 WORLD_PRESETS.forEach((preset) -> {
                     WorldPresetAccessor.getPresets().add(preset);

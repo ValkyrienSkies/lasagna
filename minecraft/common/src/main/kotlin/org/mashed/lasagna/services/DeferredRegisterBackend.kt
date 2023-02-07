@@ -7,10 +7,14 @@ import java.util.*
 
 interface DeferredRegisterBackend {
     fun <T> makeDeferredRegister(id: String, registry: ResourceKey<Registry<T>>): DeferredRegister<T>
+    fun <T> makeUserRegistry(clazz: Class<T>, registry: ResourceKey<Registry<T>>): Unit
 
 
     companion object : DeferredRegisterBackend by (
             ServiceLoader.load(DeferredRegisterBackend::class.java)
                 .findFirst()
-                .get())
+                .get()) {
+        inline fun <reified T> makeUserRegistry(registry: ResourceKey<Registry<T>>): Unit =
+            makeUserRegistry(T::class.java, registry)
+    }
 }
