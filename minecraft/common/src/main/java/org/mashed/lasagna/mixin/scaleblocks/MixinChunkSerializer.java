@@ -4,21 +4,23 @@ import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.*;
 import net.minecraft.world.level.chunk.storage.ChunkSerializer;
-import net.minecraft.world.level.levelgen.BelowZeroRetrogen;
-import net.minecraft.world.level.levelgen.blending.BlendingData;
 import net.minecraft.world.level.lighting.LevelLightEngine;
+import org.mashed.lasagna.chunkstorage.ExtraSectionStorage;
 import org.mashed.lasagna.scaleblocks.ScaledSection;
-import org.mashed.lasagna.scaleblocks.ScaledSectionContainer;
+import org.mashed.lasagna.chunkstorage.ExtraStorageSectionContainer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+
+import java.util.List;
 
 @Mixin(ChunkSerializer.class)
 public class MixinChunkSerializer {
@@ -36,9 +38,12 @@ public class MixinChunkSerializer {
                                      DataLayer dataLayer, DataLayer dataLayer2,
                                      CompoundTag nbt,
                                      LevelChunkSection section) {
-        var scaled = ((ScaledSectionContainer) section).getScaledSection();
-        if (scaled != null)
-            scaled.writeNbt(nbt);
+        final List<ExtraSectionStorage> storage = ((ExtraStorageSectionContainer) section).getStorage();
+        if (!storage.isEmpty()) {
+            final ListTag extraStorage = new ListTag();
+            storage.forEach(x -> extraStorage.add(x.writeNBT(new CompoundTag())));
+            nbt.put("lasagna:ExtraStorage", extraStorage);
+        }
     }
 
     @Inject(
@@ -53,8 +58,13 @@ public class MixinChunkSerializer {
                                             ChunkSource chunkSource, LevelLightEngine levelLightEngine,
                                             Registry registry, Codec codec, int j, CompoundTag sectionNbt, int k, int index,
                                             PalettedContainer states, PalettedContainer biomes) {
-        var section = levelChunkSections[index];
-        ((ScaledSectionContainer) section).setScaledSection(ScaledSection.readNbt(sectionNbt));
+
+        if (sectionNbt.contains("lasagna:ExtraStorage")) {
+            final LevelChunkSection section = levelChunkSections[index];
+            final ListTag extraStorage = sectionNbt.getList("lasagna:ExtraStorage", Tag.TAG_COMPOUND);
+            final List<ExtraSectionStorage> storage = ((ExtraStorageSectionContainer) section).getStorage();
+            extraStorage.forEach(xTag -> storage.add(ExtraSectionStorage.readNbt((CompoundTag) xTag)));
+        }
     }
 
 }

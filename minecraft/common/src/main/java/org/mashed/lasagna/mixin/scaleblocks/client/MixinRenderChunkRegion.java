@@ -7,7 +7,7 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.mashed.lasagna.mixin.scaleblocks.client.accessor.AccessorRenderChunk;
 import org.mashed.lasagna.scaleblocks.ScaledSection;
-import org.mashed.lasagna.scaleblocks.ScaledSectionContainer;
+import org.mashed.lasagna.chunkstorage.ExtraStorageSectionContainer;
 import org.mashed.lasagna.scaleblocks.ScaledSectionsProvider;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,6 +28,6 @@ public class MixinRenderChunkRegion implements ScaledSectionsProvider {
     public ScaledSection getScaledSectionAt(@NotNull BlockPos pos) {
         int i = SectionPos.blockToSectionCoord(pos.getX()) - this.centerX;
         int j = SectionPos.blockToSectionCoord(pos.getZ()) - this.centerZ;
-        return ((ScaledSectionContainer) ((AccessorRenderChunk) this.chunks[i][j]).getWrapped().getSection(level.getSectionIndex(pos.getY()))).getScaledSection();
+        return ((ExtraStorageSectionContainer) ((AccessorRenderChunk) this.chunks[i][j]).getWrapped().getSection(level.getSectionIndex(pos.getY()))).getScaledSection();
     }
 }

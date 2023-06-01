@@ -8,15 +8,18 @@ import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtOps
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.chunk.PalettedContainer
 import org.mashed.lasagna.Minecraft
+import org.mashed.lasagna.chunkstorage.ExtraSectionStorage
 import org.mashed.lasagna.kodec.codec
 import java.lang.RuntimeException
+import kotlin.text.Typography.section
 
-class ScaledSection(val view: ScaleBlocksView) {
+class ScaledSection(val view: ScaleBlocksView, override val id: ResourceLocation) : ExtraSectionStorage {
     val states: Array<PalettedContainer<BlockState>> = Array(view.resolution * view.resolution * view.resolution) {
         PalettedContainer(
             Block.BLOCK_STATE_REGISTRY,
@@ -41,24 +44,27 @@ class ScaledSection(val view: ScaleBlocksView) {
         return xIndex + yIndex + zIndex
     }
 
-    fun writeNbt(section: CompoundTag) {
-        section.put("scaled_view",
+    override fun writeNBT(storage: CompoundTag): CompoundTag {
+        storage.put("view",
             ScaleBlocksView::class.codec.encode(view, NbtOps.INSTANCE, CompoundTag())
                 .getOrThrow(false, ::RuntimeException)
         )
 
         // TODO write states
+
+        return storage
     }
 
     companion object {
         @JvmStatic
-        fun readNbt(section: CompoundTag): ScaledSection? =
-            if (section.contains("scaled_view")) {
-                ScaledSection(ScaleBlocksView::class.codec.decode(NbtOps.INSTANCE, section.getCompound("scaled_view"))
-                    .getOrThrow(false, ::RuntimeException).first).apply {
-                        // TODO read states
-                }
-            } else null
+        fun readNbt(storage: CompoundTag): ScaledSection =
+            ScaledSection(
+                ScaleBlocksView::class.codec.decode(NbtOps.INSTANCE, storage.getCompound("view"))
+                    .getOrThrow(false, ::RuntimeException).first,
+                ResourceLocation(storage.getString("id"))
+            ).apply {
+                // TODO read states
+            }
 
     }
 }

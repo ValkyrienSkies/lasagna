@@ -7,7 +7,6 @@ import net.minecraft.client.renderer.chunk.RenderChunkRegion;
 import net.minecraft.client.renderer.chunk.VisGraph;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.mashed.lasagna.scaleblocks.ScaledSectionContainer;
 import org.mashed.lasagna.scaleblocks.ScaledSectionsProvider;
 import org.mashed.lasagna.scaleblocks.render.ScaledSectionRenderer;
 import org.spongepowered.asm.mixin.Final;
@@ -18,7 +17,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import javax.annotation.Nullable;
 import java.util.Random;
 import java.util.Set;
 

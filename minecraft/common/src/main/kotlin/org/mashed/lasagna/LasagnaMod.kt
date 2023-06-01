@@ -6,8 +6,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
 import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument
 import net.minecraft.client.multiplayer.ClientSuggestionProvider
 import net.minecraft.commands.CommandSourceStack
-import net.minecraft.commands.arguments.coordinates.BlockPosArgument
-import net.minecraft.commands.arguments.coordinates.Coordinates
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.TextComponent
 import net.minecraft.resources.ResourceLocation
@@ -15,7 +13,7 @@ import net.minecraft.world.level.block.Blocks
 import org.mashed.lasagna.api.events.RegistryEvents
 import org.mashed.lasagna.scaleblocks.ScaleBlocksView
 import org.mashed.lasagna.scaleblocks.ScaledSection
-import org.mashed.lasagna.scaleblocks.ScaledSectionContainer
+import org.mashed.lasagna.chunkstorage.ExtraStorageSectionContainer
 
 object LasagnaMod {
     const val MOD_ID = "lasagna"
@@ -40,9 +38,9 @@ object LasagnaMod {
                     1
                 }).then(literal<ClientSuggestionProvider>("debug").then(argument<ClientSuggestionProvider, Int>("pos", IntegerArgumentType.integer()).executes { ctx ->
                     try {
-                        (Minecraft.level?.getChunk(BlockPos.ZERO)?.getSection(0) as ScaledSectionContainer?)?.let {
+                        (Minecraft.level?.getChunk(BlockPos.ZERO)?.getSection(0) as ExtraStorageSectionContainer?)?.let {
                             if (it.scaledSection == null)
-                                it.scaledSection = ScaledSection(ScaleBlocksView(3, 0.05))
+                                it.scaledSection = ScaledSection(ScaleBlocksView(3, 0.05), "test".resource)
 
                             val cord = ctx.getArgument("pos", Int::class.java)
 
@@ -66,9 +64,9 @@ object LasagnaMod {
             literal<CommandSourceStack>("lasagna").then(
                 literal<CommandSourceStack>("debug").executes {
                     try {
-                        (it.source.level.getChunk(0, 0).getSection(0) as ScaledSectionContainer?)?.let {
+                        (it.source.level.getChunk(0, 0).getSection(0) as ExtraStorageSectionContainer?)?.let {
                             if (it.scaledSection == null)
-                                it.scaledSection = ScaledSection(ScaleBlocksView(3, 0.05))
+                                it.scaledSection = ScaledSection(ScaleBlocksView(3, 0.05), "test".resource)
                                     .apply { setBlockState(0, 12, 0, Blocks.GOLD_BLOCK.defaultBlockState()) }
                         }
                         it.source.sendSuccess(TextComponent("Lasagna debug"), false)
