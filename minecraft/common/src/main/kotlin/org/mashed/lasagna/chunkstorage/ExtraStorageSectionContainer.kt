@@ -1,10 +1,17 @@
 package org.mashed.lasagna.chunkstorage
 
-import org.mashed.lasagna.scaleblocks.ScaledSection
+import net.minecraft.resources.ResourceLocation
+import org.mashed.lasagna.api.Identifiable
 
 interface ExtraStorageSectionContainer {
-    val storage: List<ExtraSectionStorage>
-    @Deprecated("Use storage instead")
-    var scaledSection: ScaledSection?
+    fun getSectionStorage(id: ResourceLocation): ExtraSectionStorage?
+    fun setSectionStorage(id: ResourceLocation, storage: ExtraSectionStorage)
+    fun removeSectionStorage(id: ResourceLocation): ExtraSectionStorage?
 
+    fun <T> getSectionsOfType(type: Class<T>): Set<T> where T: ExtraSectionStorage
+    fun getStorage(): Set<Map.Entry<ResourceLocation, ExtraSectionStorage>>
+}
+
+inline fun <reified T> ExtraStorageSectionContainer.setSectionStorage(storage: T) where T: ExtraSectionStorage, T: Identifiable {
+    this.setSectionStorage(storage.id, storage)
 }

@@ -12,8 +12,9 @@
   ],
   "mixins": [
     "MixinRegistry",
-    "scaleblocks.MixinChunkSerializer",
-    "scaleblocks.MixinLevelChunkSection"
+    "section_storage.MixinChunkSerializer",
+    "section_storage.MixinLevelChunkSection",
+    "worldgen.MixinBiomeSource"
   ],
   "injectors": {
     "defaultRequire": 1

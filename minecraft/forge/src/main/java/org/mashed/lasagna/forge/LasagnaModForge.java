@@ -6,8 +6,11 @@ import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.registries.NewRegistryEvent;
 import net.minecraftforge.registries.RegistryBuilder;
 import org.mashed.lasagna.LasagnaMod;
@@ -25,8 +28,9 @@ import java.util.function.Consumer;
 @Mod(LasagnaMod.MOD_ID)
 public class LasagnaModForge {
     private static final List<Pair<Class<?>, ResourceKey<?>>> registries = new ArrayList<>();
+    private static final List<PreparableReloadListener> reloadListeners = new ArrayList<>();
     boolean happendClientSetup = false;
-    static IEventBus MOD_BUS;
+    public static IEventBus MOD_BUS;
 
     @OnlyIn(Dist.CLIENT)
     public static final ResourceKey<Registry<DimensionSpecialEffects>> DIMENSION_EFFECTS_REGISTRY = ResourceKey.createRegistryKey(
@@ -45,6 +49,8 @@ public class LasagnaModForge {
         MOD_BUS.addListener(this::clientSetup);
         MOD_BUS.addListener(this::createRegistries);
 //        MOD_BUS.addListener(this::entityRenderers);
+
+        MinecraftForge.EVENT_BUS.addListener(this::createResourceListeners);
 
         LasagnaMod.init();
     }
@@ -70,5 +76,13 @@ public class LasagnaModForge {
                     .setName(pair.getSecond().location())
                     .setType(pair.getFirst()));
         });
+    }
+
+    void createResourceListeners(final AddReloadListenerEvent event) {
+        reloadListeners.forEach(event::addListener);
+    }
+
+    public static void addReloadListener(PreparableReloadListener listener) {
+        reloadListeners.add(listener);
     }
 }

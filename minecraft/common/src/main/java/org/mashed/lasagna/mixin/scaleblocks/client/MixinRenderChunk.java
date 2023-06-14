@@ -23,13 +23,16 @@ import java.util.Set;
 @Mixin(ChunkRenderDispatcher.RenderChunk.RebuildTask.class)
 public class MixinRenderChunk {
 
+    // The 'this' of the outer class
     @Shadow @Final ChunkRenderDispatcher.RenderChunk field_20839;
 
     @Inject(method = "compile", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getBlockRenderer()Lnet/minecraft/client/renderer/block/BlockRenderDispatcher;"), locals = LocalCapture.CAPTURE_FAILHARD)
     private void compile(float x, float y, float z, ChunkRenderDispatcher.CompiledChunk compiledChunk, ChunkBufferBuilderPack buffers, CallbackInfoReturnable<Set<BlockEntity>> cir, int i, BlockPos blockPos, BlockPos blockPos2, VisGraph visGraph, Set set, RenderChunkRegion region, PoseStack poseStack, Random random) {
-        var section = ((ScaledSectionsProvider) region).getScaledSectionAt(this.field_20839.getOrigin());
-        if (section != null)
+        var sections = ((ScaledSectionsProvider) region).getScaledSectionsAt(this.field_20839.getOrigin());
+
+        for (var section : sections) {
             ScaledSectionRenderer.compile(section, x, y, z, compiledChunk, buffers);
+        }
     }
 
 }

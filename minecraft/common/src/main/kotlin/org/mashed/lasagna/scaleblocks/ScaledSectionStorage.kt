@@ -1,11 +1,5 @@
 package org.mashed.lasagna.scaleblocks
 
-import com.mojang.blaze3d.vertex.PoseStack
-import me.crackhead.potato_battery.render.RenderTypes
-import net.fabricmc.api.Environment
-import net.minecraft.client.renderer.ChunkBufferBuilderPack
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher
-import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtOps
 import net.minecraft.resources.ResourceLocation
@@ -13,13 +7,12 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.chunk.PalettedContainer
-import org.mashed.lasagna.Minecraft
+import org.mashed.lasagna.api.Identifiable
 import org.mashed.lasagna.chunkstorage.ExtraSectionStorage
 import org.mashed.lasagna.kodec.codec
 import java.lang.RuntimeException
-import kotlin.text.Typography.section
 
-class ScaledSection(val view: ScaleBlocksView, override val id: ResourceLocation) : ExtraSectionStorage {
+class ScaledSectionStorage(val view: ScaleBlocksView, override val id: ResourceLocation) : ExtraSectionStorage, Identifiable {
     val states: Array<PalettedContainer<BlockState>> = Array(view.resolution * view.resolution * view.resolution) {
         PalettedContainer(
             Block.BLOCK_STATE_REGISTRY,
@@ -33,7 +26,8 @@ class ScaledSection(val view: ScaleBlocksView, override val id: ResourceLocation
 
 
     fun setBlockState(x: Int, y: Int, z: Int, state: BlockState) {
-        assert(state.block is ScaledBlock && (state.block as ScaledBlock).supportsResolution(view.resolution))
+        // TODO somewhere higher in the hierarchy, make LevelChunk enable the unsaved flag
+        //assert(state.block is ScaledBlock && (state.block as ScaledBlock).supportsResolution(view.resolution))
         states[getContainerIndex(x, y, z)].set(x % 16, y % 16, z % 16, state)
     }
 
@@ -57,8 +51,8 @@ class ScaledSection(val view: ScaleBlocksView, override val id: ResourceLocation
 
     companion object {
         @JvmStatic
-        fun readNbt(storage: CompoundTag): ScaledSection =
-            ScaledSection(
+        fun readNbt(storage: CompoundTag): ScaledSectionStorage =
+            ScaledSectionStorage(
                 ScaleBlocksView::class.codec.decode(NbtOps.INSTANCE, storage.getCompound("view"))
                     .getOrThrow(false, ::RuntimeException).first,
                 ResourceLocation(storage.getString("id"))

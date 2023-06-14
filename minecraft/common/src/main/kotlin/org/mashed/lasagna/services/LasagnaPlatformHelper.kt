@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.DimensionSpecialEffects
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.packs.resources.PreparableReloadListener
 import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.ItemStack
 import java.util.*
@@ -15,12 +16,13 @@ interface LasagnaPlatformHelper {
 
     fun createCreativeTab(id: ResourceLocation, stack: () -> ItemStack): CreativeModeTab
 
+    fun registerDataListener(id: ResourceLocation, listener: PreparableReloadListener)
+
     @Environment(EnvType.CLIENT)
     fun worldPresetsRegistry(): ResourceKey<Registry<WorldPreset>>
 
     @Environment(EnvType.CLIENT)
     fun dimensionEffectsRegistry(): ResourceKey<Registry<DimensionSpecialEffects>>
-
 
     companion object : LasagnaPlatformHelper by (
             ServiceLoader.load(LasagnaPlatformHelper::class.java)

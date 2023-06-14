@@ -8,14 +8,14 @@ import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.world.level.block.Blocks
 import org.mashed.lasagna.Minecraft
-import org.mashed.lasagna.scaleblocks.ScaledSection
+import org.mashed.lasagna.scaleblocks.ScaledSectionStorage
 
 @Environment(net.fabricmc.api.EnvType.CLIENT)
 object ScaledSectionRenderer {
 
     @JvmStatic
     fun compile(
-        section: ScaledSection,
+        section: ScaledSectionStorage,
         x: Float,
         y: Float,
         z: Float,

@@ -10,18 +10,22 @@ import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.TextComponent
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.chunk.storage.SectionStorage
 import org.mashed.lasagna.api.events.RegistryEvents
+import org.mashed.lasagna.chunkstorage.ExtraSectionStorage
 import org.mashed.lasagna.scaleblocks.ScaleBlocksView
-import org.mashed.lasagna.scaleblocks.ScaledSection
+import org.mashed.lasagna.scaleblocks.ScaledSectionStorage
 import org.mashed.lasagna.chunkstorage.ExtraStorageSectionContainer
+import org.mashed.lasagna.chunkstorage.setSectionStorage
 
 object LasagnaMod {
     const val MOD_ID = "lasagna"
     const val VERSION = "DEV"
+    val test_scale = "test_scale".resource
 
     @JvmStatic
     fun init() {
-
+        ExtraSectionStorage.register(test_scale, ScaledSectionStorage::readNbt)
     }
 
     @JvmStatic
@@ -39,12 +43,14 @@ object LasagnaMod {
                 }).then(literal<ClientSuggestionProvider>("debug").then(argument<ClientSuggestionProvider, Int>("pos", IntegerArgumentType.integer()).executes { ctx ->
                     try {
                         (Minecraft.level?.getChunk(BlockPos.ZERO)?.getSection(0) as ExtraStorageSectionContainer?)?.let {
-                            if (it.scaledSection == null)
-                                it.scaledSection = ScaledSection(ScaleBlocksView(3, 0.05), "test".resource)
+                            var storage = it.getSectionStorage(test_scale);
+                            if (storage == null)
+                                it.setSectionStorage(ScaledSectionStorage(ScaleBlocksView(3, 0.05), "test".resource)
+                                    .apply { storage = this })
 
                             val cord = ctx.getArgument("pos", Int::class.java)
 
-                            it.scaledSection!!.setBlockState(cord, 12, 0, Blocks.GOLD_BLOCK.defaultBlockState())
+                            (storage as ScaledSectionStorage).setBlockState(cord, 12, 0, Blocks.GOLD_BLOCK.defaultBlockState())
 
                             Minecraft.gui.chat.addMessage(TextComponent("Lasagna debug"))
                         }
@@ -62,17 +68,18 @@ object LasagnaMod {
     fun registerServerCommands(dispatcher: CommandDispatcher<CommandSourceStack>) {
         dispatcher.register(
             literal<CommandSourceStack>("lasagna").then(
-                literal<CommandSourceStack>("debug").executes {
+                literal<CommandSourceStack>("debug").executes { ctx ->
                     try {
-                        (it.source.level.getChunk(0, 0).getSection(0) as ExtraStorageSectionContainer?)?.let {
-                            if (it.scaledSection == null)
-                                it.scaledSection = ScaledSection(ScaleBlocksView(3, 0.05), "test".resource)
-                                    .apply { setBlockState(0, 12, 0, Blocks.GOLD_BLOCK.defaultBlockState()) }
+                        (ctx.source.level.getChunk(0, 0).getSection(0) as ExtraStorageSectionContainer?)?.let {
+                            if (it.getSectionStorage(test_scale) == null)
+                                it.setSectionStorage(
+                                    ScaledSectionStorage(ScaleBlocksView(3, 0.05), test_scale)
+                                        .apply { setBlockState(0, 12, 0, Blocks.GOLD_BLOCK.defaultBlockState()) })
                         }
-                        it.source.sendSuccess(TextComponent("Lasagna debug"), false)
+                        ctx.source.sendSuccess(TextComponent("Lasagna debug"), false)
                     } catch (e: Exception) {
                         e.printStackTrace()
-                        it.source.sendFailure(TextComponent("Lasagna debug failed: ${e.message}"))
+                        ctx.source.sendFailure(TextComponent("Lasagna debug failed: ${e.message}"))
                     }
                     1
                 })

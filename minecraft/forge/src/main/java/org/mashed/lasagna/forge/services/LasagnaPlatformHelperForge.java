@@ -5,8 +5,10 @@ import net.minecraft.client.gui.screens.worldselection.WorldPreset;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.world.ForgeWorldPreset;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.mashed.lasagna.forge.LasagnaModForge;
@@ -47,5 +49,10 @@ public class LasagnaPlatformHelperForge implements LasagnaPlatformHelper {
     @Override
     public ResourceKey<Registry<DimensionSpecialEffects>> dimensionEffectsRegistry() {
         return LasagnaModForge.DIMENSION_EFFECTS_REGISTRY;
+    }
+
+    @Override
+    public void registerDataListener(@NotNull ResourceLocation id, @NotNull PreparableReloadListener listener) {
+        LasagnaModForge.addReloadListener(listener);
     }
 }
