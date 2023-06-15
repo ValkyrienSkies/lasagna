@@ -1,6 +1,8 @@
 package org.mashed.lasagna.fabric.services;
 
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+import org.jetbrains.annotations.Nullable;
+import org.mashed.lasagna.api.registry.AnonymousDeferredRegister;
 import org.mashed.lasagna.fabric.DeferredRegisterImpl;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -17,9 +19,14 @@ public class DeferredRegisterBackendFabric implements DeferredRegisterBackend {
         return new DeferredRegisterImpl<>(id, registry);
     }
 
-    @NotNull
     @Override
     public <T> void makeUserRegistry(@NotNull Class<T> clazz, @NotNull ResourceKey<Registry<T>> registry) {
         LasagnaModFabric.track(FabricRegistryBuilder.createSimple(clazz, registry.location()).buildAndRegister());
+    }
+
+    @NotNull
+    @Override
+    public <T> AnonymousDeferredRegister<T> makeAnonymousDeferredRegister(@NotNull ResourceKey<Registry<T>> registry) {
+        return new DeferredRegisterImpl<>(null, registry);
     }
 }

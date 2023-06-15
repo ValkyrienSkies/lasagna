@@ -20,18 +20,22 @@ interface ExtraSectionStorage {
 
     companion object {
         val REGISTRY_KEY = ResourceKey.createRegistryKey<ExtraSectionStorageReader>("section_storage".resource)
-        val REGISTRY by createUserRegistry(REGISTRY_KEY)
+        private val registry by (Registry.REGISTRY as Registry<Registry<ExtraSectionStorageReader>>).getOrCreateHolder(REGISTRY_KEY)
+        private val deferred = createUserRegistry(REGISTRY_KEY)
+
 
         fun <T: ExtraSectionStorage> register(id: ResourceLocation, reader: (CompoundTag) -> T) {
-            REGISTRY.register<ExtraSectionStorageReader>(id, object: ExtraSectionStorageReader {
-                override fun readNBT(nbt: CompoundTag): ExtraSectionStorage = reader(nbt)
-                override var id: ResourceLocation? = id
-            })
+            deferred.register(id) {
+                object : ExtraSectionStorageReader {
+                    override fun readNBT(nbt: CompoundTag): ExtraSectionStorage = reader(nbt)
+                    override var id: ResourceLocation? = id
+                }
+            }
         }
 
         @JvmStatic
         fun readNbt(id: ResourceLocation, nbt: CompoundTag): ExtraSectionStorage {
-            val reader = REGISTRY[id] ?: throw IllegalArgumentException("Unknown section storage type: $id")
+            val reader = registry[id] ?: throw IllegalArgumentException("Unknown section storage type: $id")
             return reader.readNBT(nbt)
         }
     }

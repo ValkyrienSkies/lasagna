@@ -12,7 +12,7 @@ interface DeferredRegister<T> : Iterable<RegistrySupplier<T>> {
 
     companion object {
 
-        fun <T> create(id: String, registry: ResourceKey<Registry<T>>): DeferredRegister<T> =
+        operator fun <T> invoke(id: String, registry: ResourceKey<Registry<T>>): DeferredRegister<T> =
             DeferredRegisterBackend.makeDeferredRegister(id, registry)
     }
 }
