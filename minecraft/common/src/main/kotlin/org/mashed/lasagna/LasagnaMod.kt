@@ -88,5 +88,5 @@ object LasagnaMod {
         RegistryEvents.onServerCommandRegister.invoke(dispatcher)
     }
 
-    val String.resource: ResourceLocation get() = ResourceLocation(MOD_ID, this)
+    internal val String.resource: ResourceLocation get() = ResourceLocation(MOD_ID, this)
 }

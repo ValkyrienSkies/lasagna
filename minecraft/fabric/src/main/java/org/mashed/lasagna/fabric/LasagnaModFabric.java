@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LasagnaModFabric implements ModInitializer {
-    private final AtomicBoolean hasInitialized = new AtomicBoolean(false);
+    private static final AtomicBoolean hasInitialized = new AtomicBoolean(false);
     private static final List<Registry> registries = new ArrayList<>();
     public static final ResourceKey<Registry<WorldPreset>> WORLD_PRESETS_REGISTRY = ResourceKey.createRegistryKey(
             new ResourceLocation(LasagnaMod.MOD_ID, "world_presets"));
