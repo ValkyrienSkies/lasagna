@@ -12,6 +12,8 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.world.ForgeWorldPreset;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.mashed.lasagna.forge.LasagnaModForge;
+import org.mashed.lasagna.networking.Serialization;
+import org.mashed.lasagna.networking.ToClientPacketTarget;
 import org.mashed.lasagna.services.LasagnaPlatformHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -54,5 +56,15 @@ public class LasagnaPlatformHelperForge implements LasagnaPlatformHelper {
     @Override
     public void registerDataListener(@NotNull ResourceLocation id, @NotNull PreparableReloadListener listener) {
         LasagnaModForge.addReloadListener(listener);
+    }
+
+    @Override
+    public <T> void sendToClient(@NotNull Serialization<T> serialization, @NotNull ToClientPacketTarget target, T data) {
+
+    }
+
+    @Override
+    public <T> void sendToServer(@NotNull Serialization<T> serialization, T data) {
+
     }
 }

@@ -21,6 +21,8 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import org.mashed.lasagna.LasagnaMod;
+import org.mashed.lasagna.networking.Serialization;
+import org.mashed.lasagna.networking.ToClientPacketTarget;
 import org.mashed.lasagna.services.LasagnaPlatformHelper;
 import org.jetbrains.annotations.NotNull;
 import org.mashed.lasagna.services.LasagnaPlatformHelper;
@@ -72,5 +74,15 @@ public class LasagnaPlatformHelperFabric implements LasagnaPlatformHelper {
                 return id;
             }
         });
+    }
+
+    @Override
+    public <T> void sendToClient(@NotNull Serialization<T> serialization, @NotNull ToClientPacketTarget target, T data) {
+
+    }
+
+    @Override
+    public <T> void sendToServer(@NotNull Serialization<T> serialization, T data) {
+
     }
 }
