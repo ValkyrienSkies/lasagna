@@ -10,6 +10,7 @@ import org.mashed.lasagna.LasagnaMod.resource
 import org.mashed.lasagna.api.registry.RegistryItem
 import org.mashed.lasagna.api.registry.createUserRegistry
 import org.mashed.lasagna.api.registry.getValue
+import kotlin.text.Typography.section
 
 /**
  * Extra section storage is a way to store additional data in a chunk section.
@@ -21,7 +22,8 @@ import org.mashed.lasagna.api.registry.getValue
  */
 interface ExtraSectionStorage {
     fun writeNBT(nbt: CompoundTag, section: LevelChunkSection): CompoundTag
-    fun writePacket(buf: FriendlyByteBuf, section: LevelChunkSection) = buf.writeNbt(writeNBT(CompoundTag(), section))
+    fun writePacket(buf: FriendlyByteBuf, section: LevelChunkSection) =
+        buf.writeNbt(writeNBT(CompoundTag(), section))
 
     interface ExtraSectionStorageEntry: RegistryItem<ExtraSectionStorageEntry> {
         fun readNBT(nbt: CompoundTag, section: LevelChunkSection): ExtraSectionStorage
@@ -38,14 +40,14 @@ interface ExtraSectionStorage {
 
         fun <T: ExtraSectionStorage> register(
                 id: ResourceLocation,
-                reader: (CompoundTag) -> T,
+                reader: (CompoundTag, section: LevelChunkSection) -> T,
                 sync: Boolean = false,
-                packetReader: (FriendlyByteBuf) -> T = { reader(it.readNbt()!!) }
+                packetReader: (FriendlyByteBuf, LevelChunkSection) -> T = { buf, section -> reader(buf.readNbt()!!, section) }
         ) {
             deferred.register(id) {
                 object : ExtraSectionStorageEntry {
-                    override fun readNBT(nbt: CompoundTag, section: LevelChunkSection): ExtraSectionStorage = reader(nbt)
-                    override fun readPacket(buf: FriendlyByteBuf, section: LevelChunkSection): ExtraSectionStorage = packetReader(buf)
+                    override fun readNBT(nbt: CompoundTag, section: LevelChunkSection): ExtraSectionStorage = reader(nbt, section)
+                    override fun readPacket(buf: FriendlyByteBuf, section: LevelChunkSection): ExtraSectionStorage = packetReader(buf, section)
                     override val sync: Boolean = sync
                     override var id: ResourceLocation? = id
                 }
