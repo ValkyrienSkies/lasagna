@@ -52,7 +52,7 @@ class ScaledSectionStorage(val view: ScaleBlocksView, override val id: ResourceL
 
     companion object {
         @JvmStatic
-        fun readNbt(storage: CompoundTag): ScaledSectionStorage =
+        fun readNbt(storage: CompoundTag, section: LevelChunkSection): ScaledSectionStorage =
             ScaledSectionStorage(
                 ScaleBlocksView::class.codec.decode(NbtOps.INSTANCE, storage.getCompound("view"))
                     .getOrThrow(false, ::RuntimeException).first,
