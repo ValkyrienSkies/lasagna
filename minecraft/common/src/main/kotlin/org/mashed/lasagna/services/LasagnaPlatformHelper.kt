@@ -10,6 +10,8 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.packs.resources.PreparableReloadListener
 import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.ItemStack
+import org.mashed.lasagna.networking.Serialization
+import org.mashed.lasagna.networking.ToClientPacketTarget
 import java.util.*
 
 interface LasagnaPlatformHelper {
@@ -18,11 +20,17 @@ interface LasagnaPlatformHelper {
 
     fun registerDataListener(id: ResourceLocation, listener: PreparableReloadListener)
 
+    @Environment(EnvType.SERVER)
+    fun <T> sendToClient(serialization: Serialization<T>, target: ToClientPacketTarget, data: T)
+
     @Environment(EnvType.CLIENT)
     fun worldPresetsRegistry(): ResourceKey<Registry<WorldPreset>>
 
     @Environment(EnvType.CLIENT)
     fun dimensionEffectsRegistry(): ResourceKey<Registry<DimensionSpecialEffects>>
+
+    @Environment(EnvType.CLIENT)
+    fun <T> sendToServer(serialization: Serialization<T>, data: T)
 
     companion object : LasagnaPlatformHelper by (
             ServiceLoader.load(LasagnaPlatformHelper::class.java)

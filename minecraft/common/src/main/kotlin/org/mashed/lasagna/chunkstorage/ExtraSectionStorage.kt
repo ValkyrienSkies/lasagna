@@ -1,42 +1,61 @@
 package org.mashed.lasagna.chunkstorage
 
-import net.minecraft.core.Holder
 import net.minecraft.core.Registry
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.level.chunk.LevelChunkSection
 import org.mashed.lasagna.LasagnaMod.resource
 import org.mashed.lasagna.api.registry.RegistryItem
 import org.mashed.lasagna.api.registry.createUserRegistry
 import org.mashed.lasagna.api.registry.getValue
-import org.mashed.lasagna.api.registry.register
 
+/**
+ * Extra section storage is a way to store additional data in a chunk section.
+ * writeNBT is used for storing the data
+ * writePacket is used for sending the data to the client if enabled
+ *
+ * If sync is enabled we will only send the initial data to the client and then
+ * Its up to the end user to send delta updates.
+ */
 interface ExtraSectionStorage {
-    fun writeNBT(nbt: CompoundTag): CompoundTag
+    fun writeNBT(nbt: CompoundTag, section: LevelChunkSection): CompoundTag
+    fun writePacket(buf: FriendlyByteBuf, section: LevelChunkSection) = buf.writeNbt(writeNBT(CompoundTag(), section))
 
-    interface ExtraSectionStorageReader: RegistryItem<ExtraSectionStorageReader> {
-        fun readNBT(nbt: CompoundTag): ExtraSectionStorage
+    interface ExtraSectionStorageEntry: RegistryItem<ExtraSectionStorageEntry> {
+        fun readNBT(nbt: CompoundTag, section: LevelChunkSection): ExtraSectionStorage
+        fun readPacket(buf: FriendlyByteBuf, section: LevelChunkSection): ExtraSectionStorage
+
+        val sync: Boolean
     }
 
     companion object {
-        val REGISTRY_KEY = ResourceKey.createRegistryKey<ExtraSectionStorageReader>("section_storage".resource)
-        private val registry by (Registry.REGISTRY as Registry<Registry<ExtraSectionStorageReader>>).getOrCreateHolder(REGISTRY_KEY)
+        val REGISTRY_KEY = ResourceKey.createRegistryKey<ExtraSectionStorageEntry>("section_storage".resource)
+        private val registry by (Registry.REGISTRY as Registry<Registry<ExtraSectionStorageEntry>>).getOrCreateHolder(REGISTRY_KEY)
         private val deferred = createUserRegistry(REGISTRY_KEY)
 
 
-        fun <T: ExtraSectionStorage> register(id: ResourceLocation, reader: (CompoundTag) -> T) {
+        fun <T: ExtraSectionStorage> register(
+                id: ResourceLocation,
+                reader: (CompoundTag) -> T,
+                sync: Boolean = false,
+                packetReader: (FriendlyByteBuf) -> T = { reader(it.readNbt()!!) }
+        ) {
             deferred.register(id) {
-                object : ExtraSectionStorageReader {
-                    override fun readNBT(nbt: CompoundTag): ExtraSectionStorage = reader(nbt)
+                object : ExtraSectionStorageEntry {
+                    override fun readNBT(nbt: CompoundTag, section: LevelChunkSection): ExtraSectionStorage = reader(nbt)
+                    override fun readPacket(buf: FriendlyByteBuf, section: LevelChunkSection): ExtraSectionStorage = packetReader(buf)
+                    override val sync: Boolean = sync
                     override var id: ResourceLocation? = id
                 }
             }
         }
 
         @JvmStatic
-        fun readNbt(id: ResourceLocation, nbt: CompoundTag): ExtraSectionStorage {
+        fun readNbt(id: ResourceLocation, nbt: CompoundTag, section: LevelChunkSection): ExtraSectionStorage {
             val reader = registry[id] ?: throw IllegalArgumentException("Unknown section storage type: $id")
-            return reader.readNBT(nbt)
+            return reader.readNBT(nbt, section)
         }
     }
 }

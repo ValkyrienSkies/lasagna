@@ -12,12 +12,12 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
     // Remove the next line if you don't want to depend on the API
 //    modApi "dev.architectury:architectury:${rootProject.architectury_version}"
-    api "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.21"
-    api "org.jetbrains.kotlin:kotlin-reflect:1.7.21"
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21"
+    api "org.jetbrains.kotlin:kotlin-reflect:1.8.21"
     implementation "org.jgrapht:jgrapht-core:1.5.1"
     implementation "org.jgrapht:jgrapht-ext:1.5.1"
     implementation 'com.github.vlsi.mxgraph:jgraphx:4.2.2'
-    implementation 'org.jacop:jacop:4.7.0'
+    implementation 'org.jacop:jacop:4.9.0'
 }
 
 publishing {

@@ -41,7 +41,7 @@ public class MixinChunkSerializer {
             storage.forEach(x -> {
                 var tag = new CompoundTag();
                 tag.putString("type", x.getKey().toString());
-                tag = x.getValue().writeNBT(tag);
+                tag = x.getValue().writeNBT(tag, section);
                 extraStorage.add(tag);
             });
             nbt.put("lasagna:ExtraStorage", extraStorage);
@@ -68,7 +68,7 @@ public class MixinChunkSerializer {
                 final ResourceLocation id = ResourceLocation.tryParse(((CompoundTag) xTag).getString("type"));
                 assert id != null;
 
-                section.setSectionStorage(id, ExtraSectionStorage.readNbt(id, (CompoundTag) xTag));
+                section.setSectionStorage(id, ExtraSectionStorage.readNbt(id, (CompoundTag) xTag, levelChunkSections[index]));
             });
         }
     }
