@@ -6,9 +6,12 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
 import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument
 import net.minecraft.client.multiplayer.ClientSuggestionProvider
 import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.core.BlockPos
+import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.TextComponent
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.chunk.storage.SectionStorage
 import org.mashed.lasagna.api.events.RegistryEvents
@@ -17,6 +20,7 @@ import org.mashed.lasagna.scaleblocks.ScaleBlocksView
 import org.mashed.lasagna.scaleblocks.ScaledSectionStorage
 import org.mashed.lasagna.chunkstorage.ExtraStorageSectionContainer
 import org.mashed.lasagna.chunkstorage.setSectionStorage
+import org.mashed.lasagna.networking.*
 
 object LasagnaMod {
     const val MOD_ID = "lasagna"
@@ -26,6 +30,22 @@ object LasagnaMod {
     @JvmStatic
     fun init() {
         ExtraSectionStorage.register(test_scale, ScaledSectionStorage::readNbt)
+
+        LasagnaNetworking.packetServer { p: Ping, serverPlayer: ServerPlayer ->
+            LasagnaNetworking.send(PlayerPacketTarget(serverPlayer), Ping())
+        }
+
+        LasagnaNetworking.packetClient { p: Ping, mc ->
+            mc.gui.chat.addMessage(TextComponent("Pong!"))
+        }
+
+        defineSerialization("ping".resource) { p: Ping, buf: FriendlyByteBuf ->
+            buf.writeUtf("ping")
+        } decode { buf ->
+            val message = buf.readUtf()
+            if (message != "ping") throw IllegalArgumentException("Invalid ping message")
+            Ping()
+        }
     }
 
     @JvmStatic
@@ -34,13 +54,13 @@ object LasagnaMod {
     }
 
     @JvmStatic
-    fun registerClientCommands(dispatcher: CommandDispatcher<ClientSuggestionProvider>) {
+    fun registerClientCommands(dispatcher: CommandDispatcher<SharedSuggestionProvider>) {
         dispatcher.register(
-            literal<ClientSuggestionProvider>("clasagna").then(
-                literal<ClientSuggestionProvider>("version").executes {
+            literal<SharedSuggestionProvider>("clasagna").then(
+                literal<SharedSuggestionProvider>("version").executes {
                     Minecraft.gui.chat.addMessage(TextComponent("Lasagna version $VERSION"))
                     1
-                }).then(literal<ClientSuggestionProvider>("debug").then(argument<ClientSuggestionProvider, Int>("pos", IntegerArgumentType.integer()).executes { ctx ->
+                }).then(literal<SharedSuggestionProvider>("debug").then(argument<SharedSuggestionProvider, Int>("pos", IntegerArgumentType.integer()).executes { ctx ->
                     try {
                         (Minecraft.level?.getChunk(BlockPos.ZERO)?.getSection(0) as ExtraStorageSectionContainer?)?.let {
                             var storage = it.getSectionStorage(test_scale);
@@ -58,8 +78,10 @@ object LasagnaMod {
                         Minecraft.gui.chat.addMessage(TextComponent("Lasagna debug failed: ${e.message}"))
                     }
                     1
+                })).then(literal<SharedSuggestionProvider>("ping").executes {
+                    LasagnaNetworking.send(ServerPacketTarget, Ping())
+                    1
                 }))
-        )
 
         RegistryEvents.onClientCommandRegister.invoke(dispatcher)
     }
@@ -89,4 +111,6 @@ object LasagnaMod {
     }
 
     internal val String.resource: ResourceLocation get() = ResourceLocation(MOD_ID, this)
+
+    private class Ping
 }

@@ -20,7 +20,6 @@ interface LasagnaPlatformHelper {
 
     fun registerDataListener(id: ResourceLocation, listener: PreparableReloadListener)
 
-    @Environment(EnvType.SERVER)
     fun <T> sendToClient(serialization: Serialization<T>, target: ToClientPacketTarget, data: T)
 
     @Environment(EnvType.CLIENT)

@@ -1,4 +1,4 @@
-package org.mashed.lasagna.mixin.section_storage;
+package org.mashed.lasagna.fabric.mixin;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
@@ -12,6 +12,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.*;
 import net.minecraft.world.level.chunk.storage.ChunkSerializer;
 import net.minecraft.world.level.lighting.LevelLightEngine;
+import org.mashed.lasagna.chunkstorage.ChunkSerializerHelper;
 import org.mashed.lasagna.chunkstorage.ExtraSectionStorage;
 import org.mashed.lasagna.chunkstorage.ExtraStorageSectionContainer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,17 +36,7 @@ public class MixinChunkSerializer {
                                              DataLayer dataLayer, DataLayer dataLayer2,
                                              CompoundTag nbt,
                                              LevelChunkSection section) {
-        var storage = ((ExtraStorageSectionContainer) section).getStorage();
-        if (!storage.isEmpty()) {
-            final ListTag extraStorage = new ListTag();
-            storage.forEach(x -> {
-                var tag = new CompoundTag();
-                tag.putString("type", x.getKey().toString());
-                tag = x.getValue().writeNBT(tag, section);
-                extraStorage.add(tag);
-            });
-            nbt.put("lasagna:ExtraStorage", extraStorage);
-        }
+        ChunkSerializerHelper.INSTANCE.write(section, nbt);
     }
 
     @Inject(
@@ -60,16 +51,6 @@ public class MixinChunkSerializer {
                                             ChunkSource chunkSource, LevelLightEngine levelLightEngine,
                                             Registry registry, Codec codec, int j, CompoundTag sectionNbt, int k, int index,
                                             PalettedContainer states, PalettedContainer biomes) {
-
-        if (sectionNbt.contains("lasagna:ExtraStorage")) {
-            var section = (ExtraStorageSectionContainer) levelChunkSections[index];
-            final ListTag extraStorage = sectionNbt.getList("lasagna:ExtraStorage", Tag.TAG_COMPOUND);
-            extraStorage.forEach(xTag -> {
-                final ResourceLocation id = ResourceLocation.tryParse(((CompoundTag) xTag).getString("type"));
-                assert id != null;
-
-                section.setSectionStorage(id, ExtraSectionStorage.readNbt(id, (CompoundTag) xTag, levelChunkSections[index]));
-            });
-        }
+        ChunkSerializerHelper.INSTANCE.read(levelChunkSections, sectionNbt, index);
     }
 }

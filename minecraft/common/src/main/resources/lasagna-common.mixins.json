@@ -12,7 +12,6 @@
   ],
   "mixins": [
     "MixinRegistry",
-    "section_storage.MixinChunkSerializer",
     "section_storage.MixinLevelChunkSection",
     "worldgen.MixinBiomeSource"
   ],

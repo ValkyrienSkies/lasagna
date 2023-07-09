@@ -35,7 +35,7 @@ public class AnonymousDeferredRegisterImpl<T extends IForgeRegistryEntry<T>> imp
             return result;
         });
 
-        return null;
+        return (RegistrySupplier<I>) supplier;
     }
 
     @Override

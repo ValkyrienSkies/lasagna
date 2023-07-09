@@ -6,6 +6,7 @@
     "WorldPresetAccessor"
   ],
   "mixins": [
+    "MixinChunkSerializer",
     "MixinModResourcePackUtil"
   ],
   "injectors": {

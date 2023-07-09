@@ -8,10 +8,10 @@ sealed interface PacketTarget
 sealed interface ToClientPacketTarget: PacketTarget
 sealed interface ToServerPacketTarget: PacketTarget
 
-object ServerTarget: ToServerPacketTarget
-object AllPlayers: ToClientPacketTarget
+object ServerPacketTarget: ToServerPacketTarget
+object AllPlayersPacketTarget: ToClientPacketTarget
 
-class PlayerTarget(val serverPlayer: ServerPlayer): ToClientPacketTarget
-class TrackingChunksTarget(val chunk: LevelChunk): ToClientPacketTarget
-class TrackingEntityTarget(val entity: Entity): ToClientPacketTarget
-class TrackingEntityAndSelfTarget(val entity: Entity): ToClientPacketTarget
+class PlayerPacketTarget(val serverPlayer: ServerPlayer): ToClientPacketTarget
+class TrackingChunkPacketTarget(val chunk: LevelChunk): ToClientPacketTarget
+class TrackingEntityPacketTarget(val entity: Entity): ToClientPacketTarget
+class TrackingEntityAndSelfPacketTarget(val entity: Entity): ToClientPacketTarget
