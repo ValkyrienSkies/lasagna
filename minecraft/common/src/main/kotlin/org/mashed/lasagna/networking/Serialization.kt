@@ -10,6 +10,7 @@ import org.mashed.lasagna.services.LasagnaPlatformHelper
 import org.mashed.lasagna.util.LengthByteBuf
 import java.lang.IllegalArgumentException
 
+private var iid = 0
 class SerializationBuilder<T>(
     val id: ResourceLocation,
     val encode: (T, FriendlyByteBuf) -> Unit,
@@ -17,7 +18,7 @@ class SerializationBuilder<T>(
 ) {
     infix fun decode(decode: (FriendlyByteBuf) -> T) {
         //val size = getSizeOfDecode(decode)
-        LasagnaNetworking.register(Serialization(encode, decode, id,/*size,*/ packetClass))
+        LasagnaNetworking.register(Serialization(encode, decode, id,/*size,*/ iid++, packetClass))
     }
 }
 
@@ -29,6 +30,7 @@ class Serialization<T>(
     val encode: (T, FriendlyByteBuf) -> Unit,
     val decode: (FriendlyByteBuf) -> T,
     override var id: ResourceLocation? = null,
+    val iid: Int,
 //    val size: Int,
     val packetClass: Class<T>
 ): RegistryItem<Serialization<*>>

@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerPlayer
 import org.mashed.lasagna.LasagnaMod.resource
 import org.mashed.lasagna.Minecraft
+import org.mashed.lasagna.api.events.RegistryEvents
 import org.mashed.lasagna.api.registry.createUserRegistry
 import org.mashed.lasagna.api.registry.getValue
 import org.mashed.lasagna.services.LasagnaPlatformHelper
@@ -80,6 +81,20 @@ object LasagnaNetworking {
 
         return { msg, makeSync ->
             listener(msg, Minecraft, makeSync)
+        }
+    }
+
+    init {
+        RegistryEvents.onRegistriesComplete.register {
+            classMapServerListeners.forEach { (clazz, _) ->
+                val serialization = classMapSerialization[clazz] ?: throw IllegalArgumentException("Unknown serialization type: $clazz")
+                LasagnaPlatformHelper.setupServerPacketHandler(serialization.id!!, serialization)
+            }
+
+            classMapClientListeners.forEach { (clazz, _) ->
+                val serialization = classMapSerialization[clazz] ?: throw IllegalArgumentException("Unknown serialization type: $clazz")
+                LasagnaPlatformHelper.setupClientPacketHandler(serialization.id!!, serialization)
+            }
         }
     }
 

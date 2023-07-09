@@ -20,6 +20,8 @@ interface LasagnaPlatformHelper {
 
     fun registerDataListener(id: ResourceLocation, listener: PreparableReloadListener)
 
+    fun <T> setupServerPacketHandler(id: ResourceLocation, serialization: Serialization<T>)
+
     fun <T> sendToClient(serialization: Serialization<T>, target: ToClientPacketTarget, data: T)
 
     @Environment(EnvType.CLIENT)
@@ -30,6 +32,9 @@ interface LasagnaPlatformHelper {
 
     @Environment(EnvType.CLIENT)
     fun <T> sendToServer(serialization: Serialization<T>, data: T)
+
+    @Environment(EnvType.CLIENT)
+    fun <T> setupClientPacketHandler(id: ResourceLocation, serialization: Serialization<T>)
 
     companion object : LasagnaPlatformHelper by (
             ServiceLoader.load(LasagnaPlatformHelper::class.java)

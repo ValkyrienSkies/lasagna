@@ -2,15 +2,20 @@ package org.mashed.lasagna.forge.services;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
+import kotlin.jvm.functions.Function1;
+import kotlin.jvm.functions.Function2;
+import kotlin.jvm.functions.Function3;
 import net.minecraft.client.gui.screens.worldselection.WorldPreset;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.logging.log4j.util.TriConsumer;
 import org.mashed.lasagna.forge.LasagnaModForge;
 import org.mashed.lasagna.networking.*;
 import org.mashed.lasagna.services.LasagnaPlatformHelper;
@@ -23,6 +28,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class LasagnaPlatformHelperForge implements LasagnaPlatformHelper {
     private static final Set<Serialization<?>> registered = new HashSet<>();
@@ -67,7 +75,7 @@ public class LasagnaPlatformHelperForge implements LasagnaPlatformHelper {
         checkSerialization(serialization);
 
         PacketDistributor.PacketTarget forgeTarget;
-        if (target == AllPlayersPacketTarget.INSTANCE) forgeTarget =
+        if (target instanceof AllPlayersPacketTarget) forgeTarget =
                 PacketDistributor.ALL.noArg();
         else if (target instanceof PlayerPacketTarget) forgeTarget =
                 PacketDistributor.PLAYER.with(() -> ((PlayerPacketTarget) target).getServerPlayer());
@@ -89,28 +97,60 @@ public class LasagnaPlatformHelperForge implements LasagnaPlatformHelper {
         LasagnaModForge.PACKETS.send(PacketDistributor.SERVER.noArg(), data);
     }
 
-    private int nextId = 0;
     private <T> void checkSerialization(Serialization<T> serialization) {
         if (!registered.contains(serialization)) {
             registered.add(serialization);
             var encode = serialization.getEncode();
             var decode = serialization.getDecode();
-            var onRecieveClient = LasagnaNetworking.INSTANCE.onPacketRecievedClient(serialization.getPacketClass());
-            var onRecieveServer = LasagnaNetworking.INSTANCE.onPacketRecievedServer(serialization.getPacketClass());
+            var onRecieveServer = new Supplier<>() {
+                private TriConsumer<T, ServerPlayer, Consumer<Runnable>> value = null;
 
-            LasagnaModForge.PACKETS.<T>registerMessage(nextId++, serialization.getPacketClass(), encode::invoke, decode::invoke, (data, ctx) -> {
+                @Override
+                public TriConsumer<T, ServerPlayer, Consumer<Runnable>> get() {
+                    if (value == null) {
+                        var r = LasagnaNetworking.INSTANCE.onPacketRecievedServer(serialization.getPacketClass());
+                        value = (data, player, enqueue) -> r.invoke(data, player, (call) -> {
+                            enqueue.accept(call::invoke);
+                            return Unit.INSTANCE;
+                        });
+                    }
+                    return value;
+                }
+            };
+
+            var onRecieveClient = new Supplier<>() {
+                private BiConsumer<T, Consumer<Runnable>> value = null;
+
+                @Override
+                public BiConsumer<T, Consumer<Runnable>> get() {
+                    if (value == null) {
+                        var r = LasagnaNetworking.INSTANCE.onPacketRecievedClient(serialization.getPacketClass());
+                        value = (data, enqueue) -> r.invoke(data, (call) -> {
+                            enqueue.accept(call::invoke);
+                            return Unit.INSTANCE;
+                        });
+                    }
+                    return value;
+                }
+            };
+
+            LasagnaModForge.PACKETS.<T>registerMessage(serialization.getIid(), serialization.getPacketClass(), encode::invoke, decode::invoke, (data, ctx) -> {
                 if (ctx.get().getDirection().getReceptionSide().isClient()) {
-                    onRecieveClient.invoke(data, (call) -> {
-                        ctx.get().enqueueWork(call::invoke);
-                        return Unit.INSTANCE;
-                    });
+                    onRecieveClient.get().accept(data, ctx.get()::enqueueWork);
                 } else {
-                    onRecieveServer.invoke(data, ctx.get().getSender(), (call) -> {
-                        ctx.get().enqueueWork(call::invoke);
-                        return Unit.INSTANCE;
-                    });
+                    onRecieveServer.get().accept(data, ctx.get().getSender(), ctx.get()::enqueueWork);
                 }
             });
         }
+    }
+
+    @Override
+    public <T> void setupServerPacketHandler(@NotNull ResourceLocation id, @NotNull Serialization<T> serialization) {
+
+    }
+
+    @Override
+    public <T> void setupClientPacketHandler(@NotNull ResourceLocation id, @NotNull Serialization<T> serialization) {
+
     }
 }

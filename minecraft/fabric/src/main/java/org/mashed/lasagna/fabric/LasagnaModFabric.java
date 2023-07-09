@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.minecraft.client.gui.screens.worldselection.WorldPreset;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -66,7 +67,7 @@ public class LasagnaModFabric implements ModInitializer {
             if (hasClientInitialized.getAndSet(true)) return;
 
             LasagnaMod.initClient();
-            LasagnaMod.registerClientCommands((CommandDispatcher<ClientSuggestionProvider>) (Object) ClientCommandManager.DISPATCHER);
+            LasagnaMod.registerClientCommands((CommandDispatcher<SharedSuggestionProvider>) (Object) ClientCommandManager.DISPATCHER);
 
             RegistryEvents.INSTANCE.getOnRegistriesComplete().register(_u -> {
                 registries.forEach(Registry::freeze);
