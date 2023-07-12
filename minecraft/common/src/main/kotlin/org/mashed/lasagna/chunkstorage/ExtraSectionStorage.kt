@@ -52,12 +52,20 @@ interface ExtraSectionStorage {
                     override var id: ResourceLocation? = id
                 }
             }
+
+            ExtraSectionDataPacket.register()
         }
 
         @JvmStatic
         fun readNbt(id: ResourceLocation, nbt: CompoundTag, section: LevelChunkSection): ExtraSectionStorage {
             val reader = registry[id] ?: throw IllegalArgumentException("Unknown section storage type: $id")
             return reader.readNBT(nbt, section)
+        }
+
+        @JvmStatic
+        fun readPacket(id: ResourceLocation, buf: FriendlyByteBuf, section: LevelChunkSection): ExtraSectionStorage {
+            val reader = registry[id] ?: throw IllegalArgumentException("Unknown section storage type: $id")
+            return reader.readPacket(buf, section)
         }
     }
 }

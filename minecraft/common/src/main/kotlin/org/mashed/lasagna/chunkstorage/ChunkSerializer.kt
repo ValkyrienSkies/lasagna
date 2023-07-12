@@ -32,7 +32,7 @@ object ChunkSerializerHelper {
         val storage = (section as ExtraStorageSectionContainer).getStorage()
         if (storage.isNotEmpty()) {
             val extraStorage = ListTag()
-            storage.forEach(Consumer<Map.Entry<ResourceLocation, ExtraSectionStorage>> { (key, value): Map.Entry<ResourceLocation, ExtraSectionStorage> ->
+            storage.forEach(Consumer { (key, value): Map.Entry<ResourceLocation, ExtraSectionStorage> ->
                 var tag = CompoundTag()
                 tag.putString("type", key.toString())
                 tag = value.writeNBT(tag, section)

@@ -103,13 +103,13 @@ object LasagnaNetworking {
         constructor() : this(mutableListOf())
 
         operator fun invoke(data: T, context: C, makeSync: (() -> Unit) -> Unit) {
-            listeners.forEach { (sync, listener) ->
-                if (sync) {
+            listeners.forEach { (async, listener) ->
+                if (async) {
+                    listener(data, context)
+                } else {
                     makeSync {
                         listener(data, context)
                     }
-                } else {
-                    listener(data, context)
                 }
             }
         }
