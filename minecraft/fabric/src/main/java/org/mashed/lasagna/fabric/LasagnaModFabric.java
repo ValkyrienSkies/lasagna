@@ -31,11 +31,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class LasagnaModFabric implements ModInitializer {
     private static final AtomicBoolean hasInitialized = new AtomicBoolean(false);
     private static final List<Registry> registries = new ArrayList<>();
+    @Environment(EnvType.CLIENT)
     public static final ResourceKey<Registry<WorldPreset>> WORLD_PRESETS_REGISTRY = ResourceKey.createRegistryKey(
             new ResourceLocation(LasagnaMod.MOD_ID, "world_presets"));
+    @Environment(EnvType.CLIENT)
     public static final ResourceKey<Registry<DimensionSpecialEffects>> DIMENSION_EFFECTS_REGISTRY = ResourceKey.createRegistryKey(
             new ResourceLocation(LasagnaMod.MOD_ID, "dimension_effects"));
 
+    @Environment(EnvType.CLIENT)
     public static final Registry<WorldPreset> WORLD_PRESETS =
             track(FabricRegistryBuilder.createSimple(WorldPreset.class, WORLD_PRESETS_REGISTRY.location()).buildAndRegister());
 
