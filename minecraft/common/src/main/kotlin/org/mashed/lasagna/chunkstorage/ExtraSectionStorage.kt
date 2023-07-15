@@ -5,6 +5,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.level.chunk.LevelChunk
 import net.minecraft.world.level.chunk.LevelChunkSection
 import org.mashed.lasagna.LasagnaMod.resource
 import org.mashed.lasagna.api.registry.RegistryItem
@@ -37,11 +38,18 @@ interface ExtraSectionStorage {
         private val registry by (Registry.REGISTRY as Registry<Registry<ExtraSectionStorageEntry>>).getOrCreateHolder(REGISTRY_KEY)
         private val deferred = createUserRegistry(REGISTRY_KEY)
 
+        inline fun <reified T: ExtraSectionStorage> register(
+            id: ResourceLocation,
+            noinline reader: (CompoundTag, section: LevelChunkSection) -> T,
+            sync: Boolean = false,
+            noinline packetReader: (FriendlyByteBuf, LevelChunkSection) -> T = { buf, section -> reader(buf.readNbt()!!, section) }
+        ) = register(id, reader, sync, T::class.java, packetReader)
 
         fun <T: ExtraSectionStorage> register(
                 id: ResourceLocation,
                 reader: (CompoundTag, section: LevelChunkSection) -> T,
                 sync: Boolean = false,
+                clazz: Class<T>,
                 packetReader: (FriendlyByteBuf, LevelChunkSection) -> T = { buf, section -> reader(buf.readNbt()!!, section) }
         ) {
             deferred.register(id) {
@@ -52,8 +60,6 @@ interface ExtraSectionStorage {
                     override var id: ResourceLocation? = id
                 }
             }
-
-            ExtraSectionDataPacket.register()
         }
 
         @JvmStatic
@@ -67,5 +73,14 @@ interface ExtraSectionStorage {
             val reader = registry[id] ?: throw IllegalArgumentException("Unknown section storage type: $id")
             return reader.readPacket(buf, section)
         }
+
+        init {
+            ExtraSectionDataPacket.register()
+        }
     }
+}
+
+interface OwnedExtraSectionStorage: ExtraSectionStorage {
+    val owner: LevelChunk
+    val section: Int
 }

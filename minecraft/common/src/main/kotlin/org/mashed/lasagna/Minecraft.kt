@@ -1,6 +1,5 @@
 package org.mashed.lasagna
 
-import me.crackhead.potato_battery.render.RenderTypes.name
 import net.minecraft.client.gui.screens.worldselection.WorldPreset
 import net.minecraft.core.Registry
 import net.minecraft.core.RegistryAccess
@@ -42,3 +41,6 @@ fun createWorldPreset(name: ResourceLocation,
         return create(registryAccess, seed, generateFeatures, generateBonusChest, generator)
     }
 }
+
+operator fun <F, S> com.mojang.datafixers.util.Pair<F, S>.component1(): F = this.first
+operator fun <F, S> com.mojang.datafixers.util.Pair<F, S>.component2(): S = this.second

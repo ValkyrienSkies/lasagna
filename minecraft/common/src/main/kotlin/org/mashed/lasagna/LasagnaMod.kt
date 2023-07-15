@@ -4,14 +4,23 @@ import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
 import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument
+import com.mojang.realmsclient.client.Ping
 import net.minecraft.client.multiplayer.ClientSuggestionProvider
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
+import net.minecraft.commands.arguments.item.ItemArgument
+import net.minecraft.commands.arguments.item.ItemInput
 import net.minecraft.core.BlockPos
+import net.minecraft.core.Registry
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.TextComponent
+import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.tags.ItemTags
+import net.minecraft.tags.TagKey
+import net.minecraft.world.entity.EquipmentSlot
+import net.minecraft.world.item.Item
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.chunk.storage.SectionStorage
 import org.mashed.lasagna.api.events.RegistryEvents
@@ -104,11 +113,32 @@ object LasagnaMod {
                         ctx.source.sendFailure(TextComponent("Lasagna debug failed: ${e.message}"))
                     }
                     1
+                }).then(literal<CommandSourceStack>("tags").then(
+                    argument<CommandSourceStack, ItemInput>("item", ItemArgument.item()).executes { ctx ->
+                        val item = ItemArgument.getItem(ctx, "item")
+                        val tags = getTags(Registry.ITEM.getResourceKey(item.item).get())
+                        ctx.source.sendSuccess(TextComponent("Tags for ${item.item}"), false)
+                        tags.forEach { tag ->
+                            ctx.source.sendSuccess(TextComponent(tag.toString()), false)
+                        }
+                        tags.size
+                    }
+                ).executes { ctx ->
+                    val item = ctx.source.entityOrException.getSlot(EquipmentSlot.MAINHAND.index).get().item
+                    val tags = getTags(Registry.ITEM.getResourceKey(item).get())
+                    ctx.source.sendSuccess(TextComponent("Tags for ${item}"), false)
+                    tags.forEach { tag ->
+                        ctx.source.sendSuccess(TextComponent(tag.toString()), false)
+                    }
+                    tags.size
                 })
         )
 
         RegistryEvents.onServerCommandRegister.invoke(dispatcher)
     }
+
+    private fun getTags(item: ResourceKey<Item>): List<TagKey<Item>> =
+        Registry.ITEM.getHolderOrThrow(item).tags().toList()
 
     internal val String.resource: ResourceLocation get() = ResourceLocation(MOD_ID, this)
 
