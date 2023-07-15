@@ -125,7 +125,8 @@ object LasagnaMod {
                         tags.size
                     }
                 ).executes { ctx ->
-                    val item = ctx.source.entityOrException.getSlot(EquipmentSlot.MAINHAND.index).get().item
+                    val player = ctx.source.entityOrException as ServerPlayer
+                    val item = player.mainHandItem.item
                     val tags = getTags(Registry.ITEM.getResourceKey(item).get())
                     ctx.source.sendSuccess(TextComponent("Tags for ${item}"), false)
                     tags.forEach { tag ->
