@@ -1,5 +1,6 @@
 package org.mashed.lasagna.networking
 
+import net.fabricmc.api.EnvType
 import net.minecraft.client.Minecraft
 import net.minecraft.core.Registry
 import net.minecraft.network.FriendlyByteBuf
@@ -11,6 +12,7 @@ import org.mashed.lasagna.api.events.RegistryEvents
 import org.mashed.lasagna.api.registry.createUserRegistry
 import org.mashed.lasagna.api.registry.getValue
 import org.mashed.lasagna.services.LasagnaPlatformHelper
+import org.mashed.lasagna.whenClient
 import java.lang.IllegalArgumentException
 
 object LasagnaNetworking {
@@ -91,9 +93,12 @@ object LasagnaNetworking {
                 LasagnaPlatformHelper.setupServerPacketHandler(serialization.id!!, serialization)
             }
 
-            classMapClientListeners.forEach { (clazz, _) ->
-                val serialization = classMapSerialization[clazz] ?: throw IllegalArgumentException("Unknown serialization type: $clazz")
-                LasagnaPlatformHelper.setupClientPacketHandler(serialization.id!!, serialization)
+            whenClient {
+                classMapClientListeners.forEach { (clazz, _) ->
+                    val serialization = classMapSerialization[clazz]
+                        ?: throw IllegalArgumentException("Unknown serialization type: $clazz")
+                    LasagnaPlatformHelper.setupClientPacketHandler(serialization.id!!, serialization)
+                }
             }
         }
     }

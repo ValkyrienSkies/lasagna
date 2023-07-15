@@ -15,7 +15,7 @@
       "org.mashed.lasagna.fabric.LasagnaModFabric"
     ],
     "client": [
-        "org.mashed.lasagna.fabric.LasagnaModFabric${'$'}Client"
+        "org.mashed.lasagna.fabric.LasagnaModFabricClient"
     ]
   },
   "mixins": [

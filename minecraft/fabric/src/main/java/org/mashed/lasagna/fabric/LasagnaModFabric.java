@@ -30,20 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LasagnaModFabric implements ModInitializer {
     private static final AtomicBoolean hasInitialized = new AtomicBoolean(false);
-    private static final List<Registry> registries = new ArrayList<>();
-    @Environment(EnvType.CLIENT)
-    public static final ResourceKey<Registry<WorldPreset>> WORLD_PRESETS_REGISTRY = ResourceKey.createRegistryKey(
-            new ResourceLocation(LasagnaMod.MOD_ID, "world_presets"));
-    @Environment(EnvType.CLIENT)
-    public static final ResourceKey<Registry<DimensionSpecialEffects>> DIMENSION_EFFECTS_REGISTRY = ResourceKey.createRegistryKey(
-            new ResourceLocation(LasagnaMod.MOD_ID, "dimension_effects"));
-
-    @Environment(EnvType.CLIENT)
-    public static final Registry<WorldPreset> WORLD_PRESETS =
-            track(FabricRegistryBuilder.createSimple(WorldPreset.class, WORLD_PRESETS_REGISTRY.location()).buildAndRegister());
-
-    public static final Registry<DimensionSpecialEffects> DIMENSION_EFFECTS =
-            track(FabricRegistryBuilder.createSimple(DimensionSpecialEffects.class, DIMENSION_EFFECTS_REGISTRY.location()).buildAndRegister());
+    public static final List<Registry> registries = new ArrayList<>();
 
     public static <T> Registry<T> track(Registry<T> registry) {
         registries.add(registry);
@@ -59,32 +46,5 @@ public class LasagnaModFabric implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
             LasagnaMod.registerServerCommands(dispatcher);
         });
-    }
-
-    @Environment(EnvType.CLIENT)
-    public static class Client implements ClientModInitializer {
-        private final AtomicBoolean hasClientInitialized = new AtomicBoolean(false);
-
-        @Override
-        public void onInitializeClient() {
-            if (hasClientInitialized.getAndSet(true)) return;
-
-            LasagnaMod.initClient();
-            LasagnaMod.registerClientCommands((CommandDispatcher<SharedSuggestionProvider>) (Object) ClientCommandManager.DISPATCHER);
-
-            RegistryEvents.INSTANCE.getOnRegistriesComplete().register(_u -> {
-                registries.forEach(Registry::freeze);
-
-                WORLD_PRESETS.forEach((preset) -> {
-                    WorldPresetAccessor.getPresets().add(preset);
-                });
-
-                DIMENSION_EFFECTS.forEach((effect) -> {
-                    DimensionSpecialEffectsAccessor.getEFFECTS().put(DIMENSION_EFFECTS.getKey(effect), effect);
-                });
-
-                return Unit.INSTANCE;
-            });
-        }
     }
 }

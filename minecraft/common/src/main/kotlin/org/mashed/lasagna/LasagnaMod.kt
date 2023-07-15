@@ -32,6 +32,7 @@ import org.mashed.lasagna.chunkstorage.setSectionStorage
 import org.mashed.lasagna.networking.*
 
 object LasagnaMod {
+    var clientInitialized = false
     const val MOD_ID = "lasagna"
     const val VERSION = "DEV"
     val test_scale = "test_scale".resource
@@ -59,7 +60,7 @@ object LasagnaMod {
 
     @JvmStatic
     fun initClient() {
-
+        clientInitialized = true
     }
 
     @JvmStatic

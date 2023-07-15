@@ -42,5 +42,11 @@ fun createWorldPreset(name: ResourceLocation,
     }
 }
 
-operator fun <F, S> com.mojang.datafixers.util.Pair<F, S>.component1(): F = this.first
-operator fun <F, S> com.mojang.datafixers.util.Pair<F, S>.component2(): S = this.second
+operator inline fun <F, S> com.mojang.datafixers.util.Pair<F, S>.component1(): F = this.first
+operator inline fun <F, S> com.mojang.datafixers.util.Pair<F, S>.component2(): S = this.second
+
+inline fun whenClient(block: () -> Unit) {
+    if (LasagnaMod.clientInitialized) {
+        block()
+    }
+}

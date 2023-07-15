@@ -41,7 +41,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-import static org.mashed.lasagna.fabric.LasagnaModFabric.*;
+import static org.mashed.lasagna.fabric.LasagnaModFabricClient.*;
 
 public class LasagnaPlatformHelperFabric implements LasagnaPlatformHelper {
 
