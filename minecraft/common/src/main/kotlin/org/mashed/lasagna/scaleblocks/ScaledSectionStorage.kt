@@ -40,6 +40,8 @@ class ScaledSectionStorage(val view: ScaleBlocksView, override val id: ResourceL
     }
 
     override fun writeNBT(storage: CompoundTag, section: LevelChunkSection): CompoundTag {
+        storage.putString("id", id.toString())
+
         storage.put("view",
             ScaleBlocksView::class.codec.encode(view, NbtOps.INSTANCE, CompoundTag())
                 .getOrThrow(false, ::RuntimeException)

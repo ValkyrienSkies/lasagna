@@ -70,6 +70,7 @@ class ExtraSectionDataPacket private constructor(
                 for (j in 0 until count) {
                     val id = buf.readResourceLocation()
                     val sectionStorage = ExtraSectionStorage.readPacket(id, buf, chunk.sections[i])
+                    (chunk.sections[i] as ExtraStorageSectionContainer).setSectionStorage(id, sectionStorage)
                     storage[id] = sectionStorage
                 }
 
