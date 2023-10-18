@@ -34,7 +34,7 @@ class ExtraSectionDataPacket private constructor(
             buf.writeVarInt(storage.size)
             for ((id, sectionStorage) in storage) {
                 buf.writeResourceLocation(id)
-                sectionStorage.writePacket(buf, chunk.getSection(i))
+                sectionStorage.writePacket(buf, chunk, i)
             }
         }
     }
@@ -69,7 +69,7 @@ class ExtraSectionDataPacket private constructor(
 
                 for (j in 0 until count) {
                     val id = buf.readResourceLocation()
-                    val sectionStorage = ExtraSectionStorage.readPacket(id, buf, chunk.sections[i])
+                    val sectionStorage = ExtraSectionStorage.readPacket(id, buf, chunk, i)
                     (chunk.sections[i] as ExtraStorageSectionContainer).setSectionStorage(id, sectionStorage)
                     storage[id] = sectionStorage
                 }

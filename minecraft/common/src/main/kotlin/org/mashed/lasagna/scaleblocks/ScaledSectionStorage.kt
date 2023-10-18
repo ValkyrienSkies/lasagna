@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.chunk.LevelChunk
 import net.minecraft.world.level.chunk.LevelChunkSection
 import net.minecraft.world.level.chunk.PalettedContainer
 import org.mashed.lasagna.api.Identifiable
@@ -39,7 +40,7 @@ class ScaledSectionStorage(val view: ScaleBlocksView, override val id: ResourceL
         return xIndex + yIndex + zIndex
     }
 
-    override fun writeNBT(storage: CompoundTag, section: LevelChunkSection): CompoundTag {
+    override fun writeNBT(storage: CompoundTag, chunk: LevelChunk, sectionIndex: Int): CompoundTag {
         storage.putString("id", id.toString())
 
         storage.put("view",
@@ -54,7 +55,7 @@ class ScaledSectionStorage(val view: ScaleBlocksView, override val id: ResourceL
 
     companion object {
         @JvmStatic
-        fun readNbt(storage: CompoundTag, section: LevelChunkSection): ScaledSectionStorage =
+        fun readNbt(storage: CompoundTag, chunk: LevelChunk, sectionIndex: Int): ScaledSectionStorage =
             ScaledSectionStorage(
                 ScaleBlocksView::class.codec.decode(NbtOps.INSTANCE, storage.getCompound("view"))
                     .getOrThrow(false, ::RuntimeException).first,

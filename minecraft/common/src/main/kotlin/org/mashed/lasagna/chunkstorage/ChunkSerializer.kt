@@ -11,31 +11,32 @@ import kotlin.text.Typography.section
 
 object ChunkSerializerHelper {
     fun read(
-        levelChunkSections: Array<LevelChunkSection>,
+        chunk: LevelChunk,
         sectionNbt: CompoundTag,
         index: Int,
     ) {
         if (sectionNbt.contains("lasagna:ExtraStorage")) {
-            val section = levelChunkSections[index] as ExtraStorageSectionContainer
+            val section = chunk.sections[index] as ExtraStorageSectionContainer
             val extraStorage = sectionNbt.getList("lasagna:ExtraStorage", Tag.TAG_COMPOUND.toInt())
             extraStorage.forEach(Consumer { xTag: Tag ->
                 val id = ResourceLocation.tryParse((xTag as CompoundTag).getString("type"))!!
-                section.setSectionStorage(id, readNbt(id, xTag, levelChunkSections[index]))
+                section.setSectionStorage(id, readNbt(id, xTag, chunk, index))
             })
         }
     }
 
     fun write(
-        section: LevelChunkSection,
+        chunk: LevelChunk,
+        index: Int,
         nbt: CompoundTag,
     ) {
-        val storage = (section as ExtraStorageSectionContainer).getStorage()
+        val storage = (chunk.sections[index] as ExtraStorageSectionContainer).getStorage()
         if (storage.isNotEmpty()) {
             val extraStorage = ListTag()
             storage.forEach(Consumer { (key, value): Map.Entry<ResourceLocation, ExtraSectionStorage> ->
                 var tag = CompoundTag()
                 tag.putString("type", key.toString())
-                tag = value.writeNBT(tag, section)
+                tag = value.writeNBT(tag, chunk, index)
                 extraStorage.add(tag)
             })
             nbt.put("lasagna:ExtraStorage", extraStorage)

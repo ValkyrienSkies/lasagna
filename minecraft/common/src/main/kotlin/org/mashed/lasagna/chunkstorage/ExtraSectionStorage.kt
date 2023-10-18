@@ -22,13 +22,13 @@ import kotlin.text.Typography.section
  * Its up to the end user to send delta updates.
  */
 interface ExtraSectionStorage {
-    fun writeNBT(nbt: CompoundTag, section: LevelChunkSection): CompoundTag
-    fun writePacket(buf: FriendlyByteBuf, section: LevelChunkSection) =
-        buf.writeNbt(writeNBT(CompoundTag(), section))
+    fun writeNBT(nbt: CompoundTag, chunk: LevelChunk, sectionIndex: Int): CompoundTag
+    fun writePacket(buf: FriendlyByteBuf, chunk: LevelChunk, sectionIndex: Int) =
+        buf.writeNbt(writeNBT(CompoundTag(), chunk, sectionIndex))
 
     interface ExtraSectionStorageEntry: RegistryItem<ExtraSectionStorageEntry> {
-        fun readNBT(nbt: CompoundTag, section: LevelChunkSection): ExtraSectionStorage
-        fun readPacket(buf: FriendlyByteBuf, section: LevelChunkSection): ExtraSectionStorage
+        fun readNBT(nbt: CompoundTag, chunk: LevelChunk, sectionIndex: Int): ExtraSectionStorage
+        fun readPacket(buf: FriendlyByteBuf, chunk: LevelChunk, sectionIndex: Int): ExtraSectionStorage
 
         val sync: Boolean
     }
@@ -40,22 +40,24 @@ interface ExtraSectionStorage {
 
         inline fun <reified T: ExtraSectionStorage> register(
             id: ResourceLocation,
-            noinline reader: (CompoundTag, section: LevelChunkSection) -> T,
+            noinline reader: (CompoundTag, chunk: LevelChunk, sectionIndex: Int) -> T,
             sync: Boolean = false,
-            noinline packetReader: (FriendlyByteBuf, LevelChunkSection) -> T = { buf, section -> reader(buf.readNbt()!!, section) }
+            noinline packetReader: (FriendlyByteBuf, LevelChunk, Int) -> T = { buf, chunk, index -> reader(buf.readNbt()!!, chunk, index) }
         ) = register(id, reader, sync, T::class.java, packetReader)
 
         fun <T: ExtraSectionStorage> register(
                 id: ResourceLocation,
-                reader: (CompoundTag, section: LevelChunkSection) -> T,
+                reader: (CompoundTag, chunk: LevelChunk, sectionIndex: Int) -> T,
                 sync: Boolean = false,
                 clazz: Class<T>,
-                packetReader: (FriendlyByteBuf, LevelChunkSection) -> T = { buf, section -> reader(buf.readNbt()!!, section) }
+                packetReader: (FriendlyByteBuf, LevelChunk, Int) -> T = { buf, chunk, index -> reader(buf.readNbt()!!, chunk, index) }
         ) {
             deferred.register(id) {
                 object : ExtraSectionStorageEntry {
-                    override fun readNBT(nbt: CompoundTag, section: LevelChunkSection): ExtraSectionStorage = reader(nbt, section)
-                    override fun readPacket(buf: FriendlyByteBuf, section: LevelChunkSection): ExtraSectionStorage = packetReader(buf, section)
+                    override fun readNBT(nbt: CompoundTag, chunk: LevelChunk, sectionIndex: Int): ExtraSectionStorage =
+                        reader(nbt, chunk, sectionIndex)
+                    override fun readPacket(buf: FriendlyByteBuf, chunk: LevelChunk, sectionIndex: Int): ExtraSectionStorage =
+                        packetReader(buf, chunk, sectionIndex)
                     override val sync: Boolean = sync
                     override var id: ResourceLocation? = id
                 }
@@ -63,15 +65,15 @@ interface ExtraSectionStorage {
         }
 
         @JvmStatic
-        fun readNbt(id: ResourceLocation, nbt: CompoundTag, section: LevelChunkSection): ExtraSectionStorage {
+        fun readNbt(id: ResourceLocation, nbt: CompoundTag, chunk: LevelChunk, sectionIndex: Int): ExtraSectionStorage {
             val reader = registry[id] ?: throw IllegalArgumentException("Unknown section storage type: $id")
-            return reader.readNBT(nbt, section)
+            return reader.readNBT(nbt, chunk, sectionIndex)
         }
 
         @JvmStatic
-        fun readPacket(id: ResourceLocation, buf: FriendlyByteBuf, section: LevelChunkSection): ExtraSectionStorage {
+        fun readPacket(id: ResourceLocation, buf: FriendlyByteBuf, chunk: LevelChunk, sectionIndex: Int): ExtraSectionStorage {
             val reader = registry[id] ?: throw IllegalArgumentException("Unknown section storage type: $id")
-            return reader.readPacket(buf, section)
+            return reader.readPacket(buf, chunk, sectionIndex)
         }
 
         init {

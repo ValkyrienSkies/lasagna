@@ -11,7 +11,9 @@ import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.*;
 import net.minecraft.world.level.chunk.storage.ChunkSerializer;
+import net.minecraft.world.level.levelgen.blending.BlendingData;
 import net.minecraft.world.level.lighting.LevelLightEngine;
+import net.minecraft.world.ticks.LevelChunkTicks;
 import org.mashed.lasagna.chunkstorage.ChunkSerializerHelper;
 import org.mashed.lasagna.chunkstorage.ExtraSectionStorage;
 import org.mashed.lasagna.chunkstorage.ExtraStorageSectionContainer;
@@ -27,8 +29,9 @@ public class MixinChunkSerializer {
     @Inject(
             method = "write",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/LevelChunkSection;getStates()Lnet/minecraft/world/level/chunk/PalettedContainer;"),
-            locals = LocalCapture.CAPTURE_FAILHARD)
-    private static void writeScaledChunkData(ServerLevel level, ChunkAccess chunk, CallbackInfoReturnable<CompoundTag> cir,
+            locals = LocalCapture.CAPTURE_FAILHARD
+    )
+    private static void writeExtraChunkData(ServerLevel level, ChunkAccess chunk, CallbackInfoReturnable<CompoundTag> cir,
                                              ChunkPos chunkPos, CompoundTag compoundTag, LevelChunkSection[] levelChunkSections,
                                              ListTag listTag, LevelLightEngine levelLightEngine,
                                              Registry registry, Codec codec, boolean bl,
@@ -36,21 +39,27 @@ public class MixinChunkSerializer {
                                              DataLayer dataLayer, DataLayer dataLayer2,
                                              CompoundTag nbt,
                                              LevelChunkSection section) {
-        ChunkSerializerHelper.INSTANCE.write(section, nbt);
+        if (chunk instanceof LevelChunk levelChunk) {
+            ChunkSerializerHelper.INSTANCE.write(levelChunk, j, nbt);
+        }
     }
 
     @Inject(
             method = "read",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/ai/village/poi/PoiManager;checkConsistencyWithBlocks(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/LevelChunkSection;)V", shift = At.Shift.BEFORE),
-            locals = LocalCapture.CAPTURE_FAILHARD
+            at = @At(value = "RETURN", ordinal = 0)
     )
-    private static void readScaledChunkData(ServerLevel level, PoiManager poiManager,
-                                            ChunkPos pos, CompoundTag tag, CallbackInfoReturnable<ProtoChunk> cir,
-                                            UpgradeData upgradeData, boolean bl, ListTag listTag, int i,
-                                            LevelChunkSection[] levelChunkSections, boolean bl2,
-                                            ChunkSource chunkSource, LevelLightEngine levelLightEngine,
-                                            Registry registry, Codec codec, int j, CompoundTag sectionNbt, int k, int index,
-                                            PalettedContainer states, PalettedContainer biomes) {
-        ChunkSerializerHelper.INSTANCE.read(levelChunkSections, sectionNbt, index);
+    private static void readExtraChunkData(ServerLevel lvel,
+                                           PoiManager poiManager,
+                                           ChunkPos pos, CompoundTag tag,
+                                           CallbackInfoReturnable<ProtoChunk> cir) {
+        assert cir.getReturnValue() != null && cir.getReturnValue() instanceof ImposterProtoChunk;
+
+        ImposterProtoChunk chunk = (ImposterProtoChunk) cir.getReturnValue();
+        ListTag listTag = tag.getList("Sections", 10);
+
+        for (int index = 0; index < chunk.getSectionsCount(); index++) {
+            CompoundTag sectionNbt = listTag.getCompound(index);
+            ChunkSerializerHelper.INSTANCE.read(chunk.getWrapped(), sectionNbt, index);
+        }
     }
 }
