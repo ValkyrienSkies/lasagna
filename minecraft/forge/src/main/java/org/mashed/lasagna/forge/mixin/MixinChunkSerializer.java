@@ -42,22 +42,27 @@ public class MixinChunkSerializer {
                                              DataLayer dataLayer, DataLayer dataLayer2,
                                              CompoundTag nbt,
                                              LevelChunkSection section) {
-        ChunkSerializerHelper.INSTANCE.write(section, nbt);
+        if (chunk instanceof LevelChunk levelChunk) {
+            ChunkSerializerHelper.INSTANCE.write(levelChunk, j, nbt);
+        }
     }
 
     @Inject(
             method = "read",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/ai/village/poi/PoiManager;checkConsistencyWithBlocks(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/level/chunk/LevelChunkSection;)V", shift = At.Shift.BEFORE),
-            locals = LocalCapture.CAPTURE_FAILHARD
+            at = @At(value = "RETURN", ordinal = 0)
     )
-    private static void readScaledChunkData(ServerLevel level, PoiManager poiManager,
-                                            ChunkPos pos, CompoundTag tag, CallbackInfoReturnable<ProtoChunk> cir,
-                                            ChunkPos pos2,
-                                            UpgradeData upgradeData, boolean bl, ListTag listTag, int i,
-                                            LevelChunkSection[] levelChunkSections, boolean bl2,
-                                            ChunkSource chunkSource, LevelLightEngine levelLightEngine,
-                                            Registry registry, Codec codec, int j, CompoundTag sectionNbt, int k, int index,
-                                            PalettedContainer states, PalettedContainer biomes) {
-        ChunkSerializerHelper.INSTANCE.read(levelChunkSections, sectionNbt, index);
+    private static void readExtraChunkData(ServerLevel lvel,
+                                           PoiManager poiManager,
+                                           ChunkPos pos, CompoundTag tag,
+                                           CallbackInfoReturnable<ProtoChunk> cir) {
+        assert cir.getReturnValue() != null && cir.getReturnValue() instanceof ImposterProtoChunk;
+
+        ImposterProtoChunk chunk = (ImposterProtoChunk) cir.getReturnValue();
+        ListTag listTag = tag.getList("Sections", 10);
+
+        for (int index = 0; index < chunk.getSectionsCount(); index++) {
+            CompoundTag sectionNbt = listTag.getCompound(index);
+            ChunkSerializerHelper.INSTANCE.read(chunk.getWrapped(), sectionNbt, index);
+        }
     }
 }
