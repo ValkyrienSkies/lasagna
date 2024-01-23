@@ -4,4 +4,6 @@ profile:
 exclude:
   - name: All
     paths:
-      - minecraft\common\src\main\java\org\mashed\lasagna\mixin\**.java
+      - minecraft\common\src\main\java\com\ewoudje\lasagna\mixin\**.java
+      - minecraft\fabric\src\main\java\com\ewoudje\lasagna\fabric\mixin\**.java
+      - minecraft\forge\src\main\java\com\ewoudje\lasagna\forge\mixin\**.java

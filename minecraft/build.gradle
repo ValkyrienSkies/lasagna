@@ -65,7 +65,7 @@ allprojects {
     repositories {
         mavenLocal()
         maven {
-            name = "Valkyrien Skies Internal"
+            name = "VS Maven"
             url = project.vs_maven_url ?: 'https://maven.valkyrienskies.org'
             if (project.vs_maven_username && project.vs_maven_password) {
                 credentials {
@@ -83,5 +83,32 @@ allprojects {
 
     java {
         withSourcesJar()
+    }
+
+    publishing {
+        repositories {
+            if (project.vs_maven_username && project.vs_maven_password) {
+                println "Publishing to VS Maven ($version)"
+                maven {
+                    name = "VSMaven"
+                    url = project.vs_maven_url
+                    credentials {
+                        username = project.vs_maven_username
+                        password = project.vs_maven_password
+                    }
+                }
+            }
+            if (System.getenv("GITHUB_ACTOR") != null) {
+                println "Publishing to Github Packages ($version)"
+                maven {
+                    name = "GitHubPackages"
+                    url = uri("https://maven.pkg.github.com/ValkyrienSkies/lasagna")
+                    credentials {
+                        username = System.getenv("GITHUB_ACTOR")
+                        password = System.getenv("GITHUB_TOKEN")
+                    }
+                }
+            }
+        }
     }
 }
