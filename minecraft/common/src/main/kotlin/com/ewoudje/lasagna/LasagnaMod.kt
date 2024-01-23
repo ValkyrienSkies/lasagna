@@ -108,8 +108,9 @@ object LasagnaMod {
                                 it.setSectionStorage(
                                     ScaledSectionStorage(ScaleBlocksView(3, 0.05),
                                         test_scale
-                                    )
-                                        .apply { setBlockState(0, 12, 0, Blocks.GOLD_BLOCK.defaultBlockState()) })
+                                    ).apply {
+                                        setBlockState(0, 12, 0, Blocks.GOLD_BLOCK.defaultBlockState())
+                                    })
                         }
                         ctx.source.sendSuccess(TextComponent("Lasagna debug"), false)
                     } catch (e: Exception) {
@@ -117,7 +118,19 @@ object LasagnaMod {
                         ctx.source.sendFailure(TextComponent("Lasagna debug failed: ${e.message}"))
                     }
                     1
-                }).then(literal<CommandSourceStack>("tags").then(
+                }.then(literal<CommandSourceStack>("get").executes { ctx ->
+                    try {
+                        (ctx.source.level.getChunk(0, 0).getSection(0) as ExtraStorageSectionContainer?)?.let {
+                            val res = (it.getSectionStorage(test_scale) as ScaledSectionStorage).view.resolution
+
+                            ctx.source.sendSuccess(TextComponent("Resolution: ${res}"), false)
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        ctx.source.sendFailure(TextComponent("Lasagna debug failed: ${e.message}"))
+                    }
+                    1
+                })).then(literal<CommandSourceStack>("tags").then(
                     argument<CommandSourceStack, ItemInput>("item", ItemArgument.item()).executes { ctx ->
                         val item = ItemArgument.getItem(ctx, "item")
                         val tags = getTags(

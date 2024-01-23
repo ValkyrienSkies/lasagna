@@ -55,7 +55,7 @@ public class MixinChunkSerializer {
         assert cir.getReturnValue() != null && cir.getReturnValue() instanceof ImposterProtoChunk;
 
         ImposterProtoChunk chunk = (ImposterProtoChunk) cir.getReturnValue();
-        ListTag listTag = tag.getList("Sections", 10);
+        ListTag listTag = tag.getList("sections", 10);
 
         for (int index = 0; index < chunk.getSectionsCount(); index++) {
             CompoundTag sectionNbt = listTag.getCompound(index);

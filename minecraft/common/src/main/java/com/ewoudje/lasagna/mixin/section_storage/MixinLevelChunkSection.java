@@ -55,4 +55,13 @@ public abstract class MixinLevelChunkSection implements ExtraStorageSectionConta
     public Set<Map.Entry<ResourceLocation, ExtraSectionStorage>> getStorage() {
         return this.storage.entrySet();
     }
+
+    @Override
+    public boolean isDirty() {
+        for (ExtraSectionStorage storage : this.storage.values()) {
+            if (storage.isDirty()) return true;
+        }
+
+        return false;
+    }
 }

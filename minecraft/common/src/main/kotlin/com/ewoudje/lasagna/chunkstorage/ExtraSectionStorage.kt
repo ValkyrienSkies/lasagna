@@ -1,17 +1,15 @@
 package com.ewoudje.lasagna.chunkstorage
 
+import com.ewoudje.lasagna.LasagnaMod.resource
+import com.ewoudje.lasagna.api.registry.RegistryItem
+import com.ewoudje.lasagna.api.registry.createUserRegistry
+import com.ewoudje.lasagna.api.registry.getValue
 import net.minecraft.core.Registry
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.chunk.LevelChunk
-import net.minecraft.world.level.chunk.LevelChunkSection
-import com.ewoudje.lasagna.LasagnaMod.resource
-import com.ewoudje.lasagna.api.registry.RegistryItem
-import com.ewoudje.lasagna.api.registry.createUserRegistry
-import com.ewoudje.lasagna.api.registry.getValue
-import kotlin.text.Typography.section
 
 /**
  * Extra section storage is a way to store additional data in a chunk section.
@@ -22,6 +20,9 @@ import kotlin.text.Typography.section
  * Its up to the end user to send delta updates.
  */
 interface ExtraSectionStorage {
+    fun isDirty(): Boolean
+    fun saved()
+
     fun writeNBT(nbt: CompoundTag, chunk: LevelChunk, sectionIndex: Int): CompoundTag
     fun writePacket(buf: FriendlyByteBuf, chunk: LevelChunk, sectionIndex: Int) =
         buf.writeNbt(writeNBT(CompoundTag(), chunk, sectionIndex))

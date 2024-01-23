@@ -1,5 +1,8 @@
 package com.ewoudje.lasagna.scaleblocks
 
+import com.ewoudje.lasagna.api.Identifiable
+import com.ewoudje.lasagna.chunkstorage.ExtraSectionStorage
+import com.ewoudje.lasagna.kodec.codec
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtOps
 import net.minecraft.resources.ResourceLocation
@@ -7,12 +10,7 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.chunk.LevelChunk
-import net.minecraft.world.level.chunk.LevelChunkSection
 import net.minecraft.world.level.chunk.PalettedContainer
-import com.ewoudje.lasagna.api.Identifiable
-import com.ewoudje.lasagna.chunkstorage.ExtraSectionStorage
-import com.ewoudje.lasagna.kodec.codec
-import java.lang.RuntimeException
 
 class ScaledSectionStorage(val view: ScaleBlocksView, override val id: ResourceLocation) : ExtraSectionStorage, Identifiable {
     val states: Array<PalettedContainer<BlockState>> = Array(view.resolution * view.resolution * view.resolution) {
@@ -22,6 +20,7 @@ class ScaledSectionStorage(val view: ScaleBlocksView, override val id: ResourceL
             PalettedContainer.Strategy.SECTION_STATES
         )
     }
+    var dirty = true
 
     fun getBlockState(x: Int, y: Int, z: Int): BlockState =
         states[getContainerIndex(x, y, z)].get(x % 16, y % 16, z % 16)
@@ -39,6 +38,9 @@ class ScaledSectionStorage(val view: ScaleBlocksView, override val id: ResourceL
         val zIndex = z / 16
         return xIndex + yIndex + zIndex
     }
+
+    override fun isDirty(): Boolean = dirty
+    override fun saved() { dirty = false }
 
     override fun writeNBT(storage: CompoundTag, chunk: LevelChunk, sectionIndex: Int): CompoundTag {
         storage.putString("id", id.toString())

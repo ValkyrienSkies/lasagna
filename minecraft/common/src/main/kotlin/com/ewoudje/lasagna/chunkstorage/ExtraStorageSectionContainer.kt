@@ -1,7 +1,7 @@
 package com.ewoudje.lasagna.chunkstorage
 
-import net.minecraft.resources.ResourceLocation
 import com.ewoudje.lasagna.api.Identifiable
+import net.minecraft.resources.ResourceLocation
 
 interface ExtraStorageSectionContainer {
     fun getSectionStorage(id: ResourceLocation): ExtraSectionStorage?
@@ -10,6 +10,7 @@ interface ExtraStorageSectionContainer {
 
     fun <T> getSectionsOfType(type: Class<T>): Set<T> where T: ExtraSectionStorage
     fun getStorage(): Set<Map.Entry<ResourceLocation, ExtraSectionStorage>>
+    fun isDirty(): Boolean
 }
 
 inline fun <reified T> ExtraStorageSectionContainer.setSectionStorage(storage: T) where T: ExtraSectionStorage, T: Identifiable {

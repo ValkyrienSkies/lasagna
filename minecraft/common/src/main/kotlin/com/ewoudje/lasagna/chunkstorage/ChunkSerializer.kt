@@ -1,13 +1,12 @@
 package com.ewoudje.lasagna.chunkstorage
 
+import com.ewoudje.lasagna.chunkstorage.ExtraSectionStorage.Companion.readNbt
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.Tag
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.world.level.chunk.*
-import com.ewoudje.lasagna.chunkstorage.ExtraSectionStorage.Companion.readNbt
+import net.minecraft.world.level.chunk.LevelChunk
 import java.util.function.Consumer
-import kotlin.text.Typography.section
 
 object ChunkSerializerHelper {
     fun read(
@@ -37,6 +36,7 @@ object ChunkSerializerHelper {
                 var tag = CompoundTag()
                 tag.putString("type", key.toString())
                 tag = value.writeNBT(tag, chunk, index)
+                value.saved()
                 extraStorage.add(tag)
             })
             nbt.put("lasagna:ExtraStorage", extraStorage)

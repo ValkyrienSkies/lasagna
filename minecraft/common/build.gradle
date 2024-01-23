@@ -18,7 +18,7 @@ dependencies {
     implementation "org.jgrapht:jgrapht-ext:1.5.1"
     implementation 'com.github.vlsi.mxgraph:jgraphx:4.2.2'
     implementation 'org.jacop:jacop:4.9.0'
-    //implementation 'com.ewoudje:eggui-jvm:0.1.0'
+    implementation 'com.ewoudje:eggui-jvm:0.1.0+14628d66f1'
 }
 
 publishing {
