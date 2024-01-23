@@ -12,10 +12,10 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "org.mashed.lasagna.fabric.LasagnaModFabric"
+      "com.ewoudje.lasagna.fabric.LasagnaModFabric"
     ],
     "client": [
-        "org.mashed.lasagna.fabric.LasagnaModFabricClient"
+        "com.ewoudje.lasagna.fabric.LasagnaModFabricClient"
     ]
   },
   "mixins": [

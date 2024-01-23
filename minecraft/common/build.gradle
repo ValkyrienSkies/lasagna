@@ -18,26 +18,16 @@ dependencies {
     implementation "org.jgrapht:jgrapht-ext:1.5.1"
     implementation 'com.github.vlsi.mxgraph:jgraphx:4.2.2'
     implementation 'org.jacop:jacop:4.9.0'
+    //implementation 'com.ewoudje:eggui-jvm:0.1.0'
 }
 
 publishing {
     publications {
         mavenCommon(MavenPublication) {
-            groupId = "org.mashed"
+            groupId = rootProject.maven_group
             version = project.version
             artifactId = rootProject.archives_base_name
             from components.java
         }
     }
-/*
-    repositories {
-        maven {
-            url "https://packages.ewoudje.com/maven/p/mymc/maven"
-            credentials {
-                username = spaceUsername
-                password = spacePassword
-            }
-        }
-    }
-*/
 }
