@@ -98,7 +98,8 @@ allprojects {
                     }
                 }
             }
-            if (System.getenv("GITHUB_ACTOR") != null) {
+            //TODO: fix this
+            if (System.getenv("GITHUB_ACTOR") != null && false) {
                 println "Publishing to Github Packages ($version)"
                 maven {
                     name = "GitHubPackages"
