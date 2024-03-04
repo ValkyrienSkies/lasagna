@@ -3,7 +3,9 @@ package com.ewoudje.lasagna.scaleblocks
 import com.ewoudje.lasagna.api.Identifiable
 import com.ewoudje.lasagna.chunkstorage.ExtraSectionStorage
 import com.ewoudje.lasagna.kodec.codec
+import com.mojang.serialization.Codec
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.NbtOps
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.block.Block
@@ -50,7 +52,14 @@ class ScaledSectionStorage(val view: ScaleBlocksView, override val id: ResourceL
                 .getOrThrow(false, ::RuntimeException)
         )
 
-        // TODO write states
+        val list = ListTag()
+        states.forEach {
+            BLOCK_STATE_CODEC.encode(it, NbtOps.INSTANCE, CompoundTag())
+                .getOrThrow(false, ::RuntimeException)
+                .let(list::add)
+        }
+
+        storage.put("states", list)
 
         return storage
     }
@@ -63,8 +72,19 @@ class ScaledSectionStorage(val view: ScaleBlocksView, override val id: ResourceL
                     .getOrThrow(false, ::RuntimeException).first,
                 ResourceLocation(storage.getString("id"))
             ).apply {
-                // TODO read states
+                val list = storage.getList("states", 10)
+                for (i in 0 until list.size) {
+                    states[i] = BLOCK_STATE_CODEC.decode(NbtOps.INSTANCE, list.getCompound(i))
+                        .getOrThrow(false, ::RuntimeException).first
+                }
             }
 
+
+        private val BLOCK_STATE_CODEC: Codec<PalettedContainer<BlockState>> = PalettedContainer.codec(
+            Block.BLOCK_STATE_REGISTRY,
+            BlockState.CODEC,
+            PalettedContainer.Strategy.SECTION_STATES,
+            Blocks.AIR.defaultBlockState()
+        )
     }
 }

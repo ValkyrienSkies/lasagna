@@ -48,7 +48,7 @@ public class MixinChunkSerializer {
             method = "read",
             at = @At(value = "RETURN", ordinal = 0)
     )
-    private static void readExtraChunkData(ServerLevel lvel,
+    private static void readExtraChunkData(ServerLevel level,
                                            PoiManager poiManager,
                                            ChunkPos pos, CompoundTag tag,
                                            CallbackInfoReturnable<ProtoChunk> cir) {
@@ -57,9 +57,10 @@ public class MixinChunkSerializer {
         ImposterProtoChunk chunk = (ImposterProtoChunk) cir.getReturnValue();
         ListTag listTag = tag.getList("sections", 10);
 
-        for (int index = 0; index < chunk.getSectionsCount(); index++) {
+        for (int index = 0; index < chunk.getSections().length; index++) {
             CompoundTag sectionNbt = listTag.getCompound(index);
-            ChunkSerializerHelper.INSTANCE.read(chunk.getWrapped(), sectionNbt, index);
+            ChunkSerializerHelper.INSTANCE.read(chunk.getWrapped(), sectionNbt,
+                    level.getSectionIndexFromSectionY(sectionNbt.getByte("Y")));
         }
     }
 }

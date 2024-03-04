@@ -34,10 +34,3 @@ class Serialization<T>(
 //    val size: Int,
     val packetClass: Class<T>
 ): RegistryItem<Serialization<*>>
-
-
-private fun<T> getSizeOfDecode(decode: (FriendlyByteBuf) -> T): Int {
-    val buf = FriendlyByteBuf(LengthByteBuf())
-    decode(buf)
-    return buf.writerIndex()
-}
